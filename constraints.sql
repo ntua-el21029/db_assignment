@@ -20,6 +20,10 @@ ALTER TABLE administrative_staff
     ADD CONSTRAINT fk_staff_role FOREIGN KEY (role_id) REFERENCES staff_role(role_id);
 
 
+ALTER TABLE hospital_department
+    ADD CONSTRAINT fk_department_director FOREIGN KEY (department_director) REFERENCES doctor(doctor_id);
+
+
 ALTER TABLE department_room
     ADD CONSTRAINT fk_room_department FOREIGN KEY (hospital_department_id) REFERENCES hospital_department(department_id);
 

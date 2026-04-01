@@ -31,6 +31,7 @@ CREATE TABLE hospital_department (
     dep_description TEXT,
     dep_building VARCHAR(50) NOT NULL,
     dep_floor INT NOT NULL
+    department_director INT NOT NULL
 );
 
 CREATE TABLE shift_type (
@@ -146,4 +147,5 @@ CREATE TABLE hospitalization (
     total_cost DECIMAL(10, 2),
     review_id INT NULL
 );
+
 
