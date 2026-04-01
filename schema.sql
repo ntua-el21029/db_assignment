@@ -109,15 +109,14 @@ CREATE TABLE patient (
     email VARCHAR(50) NOT NULL,
     profession VARCHAR(50) NOT NULL,
     emergency_contact VARCHAR(100) NOT NULL,
-    insurance_provider VARCHAR(50) NOT NULL,
-    medication_treatment_id INT NULL,
-    medication_prescription_id INT NULL
+    insurance_provider VARCHAR(50) NOT NULL
 
 );
 
 
 CREATE TABLE medication_treatment (
     treatment_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT AUTO_INCREMENT PRIMARY KEY
     med_prescription_id INT NOT NULL,
     doctor_id INT NOT NULL,
     medicine_id INT NOT NULL
