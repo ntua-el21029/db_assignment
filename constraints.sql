@@ -34,12 +34,10 @@ ALTER TABLE triage
     ADD CONSTRAINT fk_triage_nurse FOREIGN KEY (nurse_id) REFERENCES nurse(nurse_id);
 
 
-
-
-
 ALTER TABLE medication_treatment
-FOREIGN KEY (med_prescription_id) REFERENCES medication_prescription(prescription_id),
-FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id),
-FOREIGN KEY (medicine_id) REFERENCES medicines(medicine_id);
-
+    ADD CONSTRAINT fk_med_treatment_prescription FOREIGN KEY (med_prescription_id) REFERENCES medication_prescription(prescription_id),
+    ADD CONSTRAINT fk_med_treatment_patient FOREIGN KEY (patient_id) REFERENCES patient(patient_id),
+    ADD CONSTRAINT fk_med_treatment_doctor FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id),
+    ADD CONSTRAINT fk_med_treatment_medicine FOREIGN KEY (medicine_id) REFERENCES medicines(medicine_id);
+    
 SET FOREIGN_KEY_CHECKS = 1;
