@@ -34,9 +34,7 @@ ALTER TABLE triage
     ADD CONSTRAINT fk_triage_nurse FOREIGN KEY (nurse_id) REFERENCES nurse(nurse_id);
 
 
-ALTER TABLE patient
-    ADD CONSTRAINT fk_patient_treatment FOREIGN KEY (medication_treatment_id) REFERENCES medication_treatment(medication_treatment_id),
-    ADD CONSTRAINT fk_patient_prescription FOREIGN KEY (medication_prescription_id) REFERENCES medication_prescription(medication_prescription_id);
+
 
 
 ALTER TABLE medication_treatment
