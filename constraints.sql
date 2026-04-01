@@ -39,5 +39,21 @@ ALTER TABLE medication_treatment
     ADD CONSTRAINT fk_med_treatment_patient FOREIGN KEY (patient_id) REFERENCES patient(patient_id),
     ADD CONSTRAINT fk_med_treatment_doctor FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id),
     ADD CONSTRAINT fk_med_treatment_medicine FOREIGN KEY (medicine_id) REFERENCES medicines(medicine_id);
-    
+
+
+ALTER TABLE hospitalization 
+    ADD CONSTRAINT fk_hosp_patient FOREIGN KEY (patient_id) REFERENCES patient(patient_id),
+    ADD CONSTRAINT fk_hosp_triage FOREIGN KEY (triage_id) REFERENCES triage(triage_id),
+    ADD CONSTRAINT fk_hospitalization_room FOREIGN KEY (room_id, department_id) REFERENCES department_room(room_id, hospital_department_id),
+
+    ADD CONSTRAINT fk_hosp_icd_adm FOREIGN KEY (icd10_admission_id) REFERENCES icd10_codes(id),
+    ADD CONSTRAINT fk_hosp_icd_dis FOREIGN KEY (icd10_discharge_id) REFERENCES icd10_codes(id),
+
+    ADD CONSTRAINT fk_hosp_ken FOREIGN KEY (ken_id) REFERENCES ken_system(ken_id),
+    ADD CONSTRAINT fk_hosp_review FOREIGN KEY (review_id) REFERENCES review(review_id);
+
+
+
+
+
 SET FOREIGN_KEY_CHECKS = 1;

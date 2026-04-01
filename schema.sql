@@ -48,10 +48,12 @@ CREATE TABLE duty_schedule (             -- xreiazetai kai thn omada proswpikou 
 );
 
 CREATE TABLE department_room (
-    room_id INT AUTO_INCREMENT PRIMARY KEY,
+    room_id INT NOT NULL,
     roo_type VARCHAR(45) NOT NULL,
     room_status ENUM('Available', 'Occupied', 'Under Maintenance') NOT NULL,
-    hospital_department_id INT NOT NULL
+    hospital_department_id INT NOT NULL,
+
+    PRIMARY KEY (room_id, hospital_department_id)
 );
 
 CREATE TABLE nurse_grade (
@@ -110,7 +112,6 @@ CREATE TABLE patient (
     profession VARCHAR(50) NOT NULL,
     emergency_contact VARCHAR(100) NOT NULL,
     insurance_provider VARCHAR(50) NOT NULL
-
 );
 
 
@@ -128,5 +129,21 @@ CREATE TABLE medication_prescription (
     frequency VARCHAR(50) NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL
+);
+
+CREATE TABLE hospitalization (
+    hospitalization_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT NOT NULL,
+    triage_id INT NOT NULL,
+    room_id INT NOT NULL,
+    department_id INT NOT NULL,
+    admission_date DATETIME NOT NULL,
+    discharge_date DATETIME NULL,
+    ICD10_admission_id INT NOT NULL,
+    ICD10_discharge_id INT NULL,
+    ken_id INT NOT NULL,
+    extra_cost DECIMAL(10, 2) DEFAULT 0.00
+    total_cost DECIMAL(10, 2),
+    review_id INT NULL
 );
 
