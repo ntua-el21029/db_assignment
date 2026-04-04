@@ -32,6 +32,10 @@ ALTER TABLE duty_schedule
     ADD CONSTRAINT fk_duty_shift FOREIGN KEY (shift_type_id) REFERENCES shift_type(shift_type_id),
     ADD CONSTRAINT fk_duty_department FOREIGN KEY (hospital_department_id) REFERENCES hospital_department(department_id);
 
+ALTER TABLE duty_schedule_team
+    ADD CONSTRAINT fk_duty_team_duty FOREIGN KEY (duty_id) REFERENCES duty_schedule(duty_id),
+    ADD CONSTRAINT fk_duty_team_employee FOREIGN KEY (employee_id) REFERENCES employee(employee_id);
+
 
 ALTER TABLE triage
     ADD CONSTRAINT fk_triage_patient FOREIGN KEY (patient_id) REFERENCES patient(patient_id),
@@ -66,11 +70,24 @@ ALTER TABLE medical_act
     ADD CONSTRAINT fk_medical_act_surgeon FOREIGN KEY (main_surgeon_id) REFERENCES doctor(doctor_id),
     ADD CONSTRAINT fk_medical_act_hospitalization FOREIGN KEY (hospitalization_id) REFERENCES hospitalization(hospitalization_id),
     ADD CONSTRAINT fk_medical_act_department_room FOREIGN KEY (department_room_id) REFERENCES department_room(room_id),
-    ADD CONSTRAINT fk_medical_act_nurse FOREIGN KEY (nurse_id) REFERENCES nurse(nurse_id),
-    ADD CONSTRAINT fk_medical_docto_support FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id)
     ADD CONSTRAINT fk_medical_act_act_category FOREIGN KEY (act_code) REFERENCES medical_act_categories(act_code);
 
+ALTER TABLE medical_act_has_employee
+    ADD CONSTRAINT fk_act_employee FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+    ADD CONSTRAINT fk_act_medical_act FOREIGN KEY (act_id) REFERENCES medical_act(act_id);
 
+ALTER TABLE medicine_have_active_substance
+    ADD CONSTRAINT fk_medicine_active_substance FOREIGN KEY (medication_id) REFERENCES medicines(medication_id),
+    ADD CONSTRAINT fk_active_substance_medicine FOREIGN KEY (active_substance_id) REFERENCES active_substances(active_substance_id);
 
+ALTER TABLE patient_has_allergy
+    ADD CONSTRAINT fk_patient_allergy FOREIGN KEY (patient_id) REFERENCES patient(patient_id),
+    ADD CONSTRAINT fk_allergy_patient FOREIGN KEY (active_substance_id) REFERENCES active_substances(active_substance_id);
+
+ALTER TABLE doctor 
+    ADD CONSTRAINT fk_doctor_employee FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+    ADD CONSTRAINT fk_doctor_department FOREIGN KEY (hospital_department_id) REFERENCES hospital_department(department_id),
+    ADD CONSTRAINT fk_doctor_specialty FOREIGN KEY (specialty_id) REFERENCES doctor_specialty(specialty_id),
+    ADD CONSTRAINT fk_doctor_supervisor FOREIGN KEY (supervisor_doctor_id) REFERENCES doctor(doctor_id);
 
 SET FOREIGN_KEY_CHECKS = 1;

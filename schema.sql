@@ -48,6 +48,12 @@ CREATE TABLE duty_schedule (             -- xreiazetai kai thn omada proswpikou 
     hospital_department_id INT NOT NULL
 );
 
+CREATE TABLE duty_schedule_team (
+    duty_id INT NOT NULL,
+    employee_id INT NOT NULL,
+    PRIMARY KEY (duty_id, employee_id)
+);
+
 CREATE TABLE department_room (
     room_id INT NOT NULL,
     roo_type VARCHAR(45) NOT NULL,
@@ -112,7 +118,7 @@ CREATE TABLE patient (
     email VARCHAR(50) NOT NULL,
     profession VARCHAR(50) NOT NULL,
     emergency_contact VARCHAR(100) NOT NULL,
-    insurance_provider VARCHAR(50) NOT NULL
+    insurance_provider ENUM('Public', 'Private', 'None') NOT NULL
 );
 
 
@@ -148,6 +154,15 @@ CREATE TABLE hospitalization (
     review_id INT NULL
 );
 
+CREATE TABLE review (
+    review_id INT AUTO_INCREMENT PRIMARY KEY,
+    medical_care TINYINT NOT NULL CHECK (medical_care BETWEEN 1 AND 5),
+    nurse_care TINYINT NOT NULL CHECK (nurse_care BETWEEN 1 AND 5),
+    cleanness TINYINT NOT NULL CHECK (cleanness BETWEEN 1 AND 5),
+    overall_experience TINYINT NOT NULL CHECK (overall_experience BETWEEN 1 AND 5),
+    food_quality TINYINT NOT NULL CHECK (food_quality BETWEEN 1 AND 5)
+);
+
 CREATE TABLE medical_act_categories (
     act_code VARCHAR(20) PRIMARY KEY, 
     category CHAR(1) NOT NULL,       
@@ -172,7 +187,64 @@ CREATE TABLE medical_act (
     main_surgeon_id INT NOT NULL,
     hospitalization_id INT NOT NULL,
     department_room_id INT NOT NULL,
-    nurse_id INT NULL,
-    doctor_id INT NULL,
     medical_act_code VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE medicines (
+    medication_id INT PRIMARY KEY AUTO_INCREMENT,
+    medication_name VARCHAR(100) NOT NULL,
+    medication_route VARCHAR(45),
+    medication_auth_country VARCHAR(45),
+    medication_auth_holder VARCHAR(100),
+    medication_file_location VARCHAR(255),
+    medication_email VARCHAR(100),
+    medication_number VARCHAR(50)
+);
+
+CREATE TABLE medical_act_has_employee (
+    act_id INT NOT NULL,
+    employee_id INT NOT NULL,
+    PRIMARY KEY (act_id, employee_id)
+);
+
+CREATE TABLE medicine_has_active_substance (
+    medication_id INT NOT NULL,
+    active_substance_id INT NOT NULL
+    PRIMARY KEY (medication_id, active_substance_id)
+);
+
+CREATE TABLE active_substances (
+    active_substance_id INT AUTO_INCREMENT PRIMARY KEY,
+    substance_name VARCHAR(100) NOT NULL,
+    substance_description TEXT
+);
+
+CREATE TABLE patient_has_allergy (
+    patient_id INT NOT NULL,
+    active_substance_id INT NOT NULL,
+    PRIMARY KEY (patient_id, active_substance_id)
+);
+
+CREATE TABLE doctor_grade (
+    grade_id INT AUTO_INCREMENT PRIMARY KEY,
+    grade_description ENUM('Attending', 'Currator B', 'Currrator A', 'Chief') NOT NULL
+);
+
+CREATE TABLE doctor_specialty (
+    specialty_id INT AUTO_INCREMENT PRIMARY KEY,
+    specialty_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE doctor_department (
+    doctor_id INT NOT NULL,
+    department_id INT NOT NULL,
+    PRIMARY KEY (doctor_id, department_id)
+);
+
+CREATE TABLE doctor (
+    doctor_id INT AUTO_INCREMENT PRIMARY KEY,
+    employee_id INT NOT NULL,
+    grade_id INT NOT NULL,
+    specialty_id INT NOT NULL,
+    supervisor_doctor_id  NULL 
 );
