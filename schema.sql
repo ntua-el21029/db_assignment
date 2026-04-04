@@ -56,7 +56,7 @@ CREATE TABLE duty_schedule_team (
 
 CREATE TABLE department_room (
     room_id INT NOT NULL,
-    roo_type VARCHAR(45) NOT NULL,
+    roo_type ENUM('Surgery Room', 'Patient Room') NOT NULL,
     room_status ENUM('Available', 'Occupied', 'Under Maintenance') NOT NULL,
     hospital_department_id INT NOT NULL,
 
