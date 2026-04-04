@@ -118,7 +118,7 @@ CREATE TABLE patient (
 
 CREATE TABLE medication_treatment (
     treatment_id INT AUTO_INCREMENT PRIMARY KEY,
-    patient_id INT AUTO_INCREMENT PRIMARY KEY
+    patient_id INT NOT NULL,
     med_prescription_id INT NOT NULL,
     doctor_id INT NOT NULL,
     medicine_id INT NOT NULL
@@ -148,4 +148,31 @@ CREATE TABLE hospitalization (
     review_id INT NULL
 );
 
+CREATE TABLE medical_act_categories (
+    act_code VARCHAR(20) PRIMARY KEY, 
+    category CHAR(1) NOT NULL,       
+    act_description TEXT NOT NULL               
+);
 
+CREATE TABLE laboratory_exams(
+    exam_id INT AUTO_INCREMENT PRIMARY KEY,
+    exam_date DATE NOT NULL,
+    exam_result TEXT NOT NULL,
+    doctor_id INT NOT NULL, 
+    hospitalization_id INT NOT NULL,
+    act_code VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE medical_act (
+    act_id INT AUTO_INCREMENT PRIMARY KEY,
+    act_start DATETIME NOT NULL,
+    act_end DATETIME NOT NULL,
+    act_duration INT AS (TIMESTAMPDIFF(MINUTE, act_start, act_end)) STORED,
+    act_cost DECIMAL(10, 2) NOT NULL,
+    main_surgeon_id INT NOT NULL,
+    hospitalization_id INT NOT NULL,
+    department_room_id INT NOT NULL,
+    nurse_id INT NULL,
+    doctor_id INT NULL,
+    medical_act_code VARCHAR(20) NOT NULL
+);

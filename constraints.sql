@@ -57,6 +57,19 @@ ALTER TABLE hospitalization
     ADD CONSTRAINT fk_hosp_review FOREIGN KEY (review_id) REFERENCES review(review_id);
 
 
+ALTER TABLE laboratory_exams
+    ADD CONSTRAINT fk_lab_exam_doctor FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id),
+    ADD CONSTRAINT fk_lab_exam_hospitalization FOREIGN KEY (hospitalization_id) REFERENCES hospitalization(hospitalization_id),
+    ADD CONSTRAINT fk_lab_exam_act FOREIGN KEY (act_code) REFERENCES medical_act_categories(act_code);
+
+ALTER TABLE medical_act
+    ADD CONSTRAINT fk_medical_act_surgeon FOREIGN KEY (main_surgeon_id) REFERENCES doctor(doctor_id),
+    ADD CONSTRAINT fk_medical_act_hospitalization FOREIGN KEY (hospitalization_id) REFERENCES hospitalization(hospitalization_id),
+    ADD CONSTRAINT fk_medical_act_department_room FOREIGN KEY (department_room_id) REFERENCES department_room(room_id),
+    ADD CONSTRAINT fk_medical_act_nurse FOREIGN KEY (nurse_id) REFERENCES nurse(nurse_id),
+    ADD CONSTRAINT fk_medical_docto_support FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id)
+    ADD CONSTRAINT fk_medical_act_act_category FOREIGN KEY (act_code) REFERENCES medical_act_categories(act_code);
+
 
 
 
