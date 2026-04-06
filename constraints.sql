@@ -2,8 +2,6 @@ USE hospital_db;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
-
-
 ALTER TABLE nurse 
     ADD CONSTRAINT fk_nurse_employee FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
     ADD CONSTRAINT fk_nurse_grade FOREIGN KEY (nurse_grade_id) REFERENCES nurse_grade(nurse_grade_id),
