@@ -65,7 +65,7 @@ CREATE TABLE department_room (
 
 CREATE TABLE nurse_grade (
     nurse_grade_id INT AUTO_INCREMENT PRIMARY KEY,
-    grade_description ENUM('Assistant Nurse', 'Nurse', 'Supervisor Nurse') NOT NULL
+    grade_description ENUM('Supervisor Nurse', 'Nurse', 'Assistant Nurse') NOT NULL
 );
 
 CREATE TABLE nurse (
