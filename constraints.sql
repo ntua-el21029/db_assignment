@@ -2,6 +2,10 @@ USE hospital_db;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
+ALTER TABLE hospitalization MODIFY COLUMN ICD10_admission_id VARCHAR(10) NOT NULL;
+ALTER TABLE hospitalization MODIFY COLUMN ICD10_discharge_id VARCHAR(10) NULL;
+ALTER TABLE medical_act ADD COLUMN department_id INT NOT NULL;
+
 ALTER TABLE nurse 
     ADD CONSTRAINT fk_nurse_employee FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
     ADD CONSTRAINT fk_nurse_grade FOREIGN KEY (nurse_grade_id) REFERENCES nurse_grade(nurse_grade_id),
@@ -46,7 +50,7 @@ ALTER TABLE medication_treatment
     ADD CONSTRAINT fk_med_treatment_prescription FOREIGN KEY (med_prescription_id) REFERENCES medication_prescription(prescription_id),
     ADD CONSTRAINT fk_med_treatment_patient FOREIGN KEY (patient_id) REFERENCES patient(patient_id),
     ADD CONSTRAINT fk_med_treatment_doctor FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id),
-    ADD CONSTRAINT fk_med_treatment_medicine FOREIGN KEY (medicine_id) REFERENCES medicines(medicine_id);
+    ADD CONSTRAINT fk_med_treatment_medicine FOREIGN KEY (medicine_id) REFERENCES medicines(medication_id);
 
 
 ALTER TABLE hospitalization 
@@ -54,8 +58,8 @@ ALTER TABLE hospitalization
     ADD CONSTRAINT fk_hosp_triage FOREIGN KEY (triage_id) REFERENCES triage(triage_id),
     ADD CONSTRAINT fk_hospitalization_room FOREIGN KEY (room_id, department_id) REFERENCES department_room(room_id, hospital_department_id),
 
-    ADD CONSTRAINT fk_hosp_icd_adm FOREIGN KEY (icd10_admission_id) REFERENCES icd10_codes(id),
-    ADD CONSTRAINT fk_hosp_icd_dis FOREIGN KEY (icd10_discharge_id) REFERENCES icd10_codes(id),
+    ADD CONSTRAINT fk_hosp_icd_adm FOREIGN KEY (ICD10_admission_id) REFERENCES ICD10_codes(icd_id),
+    ADD CONSTRAINT fk_hosp_icd_dis FOREIGN KEY (ICD10_discharge_id) REFERENCES ICD10_codes(icd_id),
 
     ADD CONSTRAINT fk_hosp_ken FOREIGN KEY (ken_id) REFERENCES ken_system(ken_id),
     ADD CONSTRAINT fk_hosp_review FOREIGN KEY (review_id) REFERENCES review(review_id);
@@ -69,14 +73,14 @@ ALTER TABLE laboratory_exams
 ALTER TABLE medical_act
     ADD CONSTRAINT fk_medical_act_surgeon FOREIGN KEY (main_surgeon_id) REFERENCES doctor(doctor_id),
     ADD CONSTRAINT fk_medical_act_hospitalization FOREIGN KEY (hospitalization_id) REFERENCES hospitalization(hospitalization_id),
-    ADD CONSTRAINT fk_medical_act_department_room FOREIGN KEY (department_room_id) REFERENCES department_room(room_id),
-    ADD CONSTRAINT fk_medical_act_act_category FOREIGN KEY (act_code) REFERENCES medical_act_categories(act_code);
+    ADD CONSTRAINT fk_medical_act_room FOREIGN KEY (department_room_id, department_id) REFERENCES department_room(room_id, hospital_department_id),
+    ADD CONSTRAINT fk_medical_act_act_category FOREIGN KEY (medical_act_code) REFERENCES medical_act_categories(act_code);
 
 ALTER TABLE medical_act_has_employee
     ADD CONSTRAINT fk_act_employee FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
     ADD CONSTRAINT fk_act_medical_act FOREIGN KEY (act_id) REFERENCES medical_act(act_id);
 
-ALTER TABLE medicine_have_active_substance
+ALTER TABLE medicine_has_active_substance
     ADD CONSTRAINT fk_medicine_active_substance FOREIGN KEY (medication_id) REFERENCES medicines(medication_id),
     ADD CONSTRAINT fk_active_substance_medicine FOREIGN KEY (active_substance_id) REFERENCES active_substances(active_substance_id);
 
