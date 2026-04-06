@@ -16,6 +16,7 @@ BEGIN
         END IF;
     END IF;
 END;
+//
 
 CREATE TRIGGER check_medical_act_overlap
 BEFORE INSERT ON medical_act
@@ -42,7 +43,7 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Ο ιατρός συμμετέχει ήδη ως κύριος χειρουργός σε άλλη επέμβαση αυτή την στιγμή';
     END IF;
 END;
-
+//
 
 --ana kathgoria  15 iatroi , 20 noshleytes ,25 dioikhtikoi
 CREATE TRIGGER check_monthly_shift_limits
@@ -79,6 +80,7 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Ο διοικητικός υπάλληλος έχει ήδη συμπληρώσει το όριο των 25 βαρδιών για αυτόν τον μήνα.';
     END IF;
 END;
+//
 
 USE hospital_db;
 
@@ -128,7 +130,7 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΑΚΥΡΩΣΗ: Ο ασθενής είναι αλλεργικός σε δραστική ουσία αυτού του φαρμάκου';
     END IF;
 END;
-
+//
 
 CREATE TRIGGER check_8_hour_rest
 BEFORE INSERT ON duty_schedule_team
@@ -170,7 +172,7 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Πρέπει να μεσολαβούν τουλάχιστον 8 ώρες ανάπαυσης μεταξύ των βαρδιών του υπαλλήλου!';
     END IF;
 END;
-
+//
 --oxi panv apo 3 synexomenes nyxterines bardies 
 CREATE TRIGGER check_max_3_night_shifts
 BEFORE INSERT ON duty_schedule_team
