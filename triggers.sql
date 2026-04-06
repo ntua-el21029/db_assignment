@@ -130,6 +130,47 @@ BEGIN
 END;
 
 
+CREATE TRIGGER check_8_hour_rest
+BEFORE INSERT ON duty_schedule_team
+FOR EACH ROW
+BEGIN
+    DECLARE n_start DATETIME;
+    DECLARE n_end DATETIME;
+
+    -- briskv thn hmeromhnia , vra enarkshs kai lhjhs ths neas bardias  
+    SELECT 
+        ADDTIME(CONVERT(ds.date, DATETIME), st.start_time),
+        -- an einai nyxterinh prepei na prosthesv mia mera
+        IF(st.end_time < st.start_time, 
+           ADDTIME(CONVERT(DATE_ADD(ds.date, INTERVAL 1 DAY), DATETIME), st.end_time), 
+           ADDTIME(CONVERT(ds.date, DATETIME), st.end_time)
+        )
+    INTO n_start, n_end
+    FROM duty_schedule ds
+    JOIN shift_type st ON ds.shift_type_id = st.shift_type_id
+    WHERE ds.duty_id = NEW.duty_id;
+
+    --  psaxnv an o ypallhlos exei hdh mia bardia poy sympiptei sto 8vro toy
+    IF EXISTS (
+        SELECT 1
+        FROM duty_schedule_team dst
+        JOIN duty_schedule ds ON dst.duty_id = ds.duty_id
+        JOIN shift_type st ON ds.shift_type_id = st.shift_type_id
+        WHERE dst.employee_id = NEW.employee_id
+        AND (
+            
+            ADDTIME(CONVERT(ds.date, DATETIME), st.start_time) < DATE_ADD(n_end, INTERVAL 8 HOUR)
+            AND 
+            IF(st.end_time < st.start_time, 
+               ADDTIME(CONVERT(DATE_ADD(ds.date, INTERVAL 1 DAY), DATETIME), st.end_time), 
+               ADDTIME(CONVERT(ds.date, DATETIME), st.end_time)
+            ) > DATE_SUB(n_start, INTERVAL 8 HOUR)
+        )
+    ) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Πρέπει να μεσολαβούν τουλάχιστον 8 ώρες ανάπαυσης μεταξύ των βαρδιών του υπαλλήλου!';
+    END IF;
+END;
+
 //
 
 DELIMITER ;
