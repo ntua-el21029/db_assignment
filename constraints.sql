@@ -90,7 +90,6 @@ ALTER TABLE patient_has_allergy
 
 ALTER TABLE doctor 
     ADD CONSTRAINT fk_doctor_employee FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
-    ADD CONSTRAINT fk_doctor_department FOREIGN KEY (hospital_department_id) REFERENCES hospital_department(department_id),
     ADD CONSTRAINT fk_doctor_specialty FOREIGN KEY (specialty_id) REFERENCES doctor_specialty(specialty_id),
     ADD CONSTRAINT fk_doctor_supervisor FOREIGN KEY (supervisor_doctor_id) REFERENCES doctor(doctor_id);
 
