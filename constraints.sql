@@ -2,9 +2,7 @@ USE hospital_db;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
-ALTER TABLE hospitalization MODIFY COLUMN ICD10_admission_id VARCHAR(10) NOT NULL;
-ALTER TABLE hospitalization MODIFY COLUMN ICD10_discharge_id VARCHAR(10) NULL;
-ALTER TABLE medical_act ADD COLUMN department_id INT NOT NULL;
+
 
 ALTER TABLE nurse 
     ADD CONSTRAINT fk_nurse_employee FOREIGN KEY (employee_id) REFERENCES employee(employee_id),

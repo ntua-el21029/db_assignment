@@ -5,19 +5,11 @@ USE hospital_db;
 CREATE TABLE ken_system (
     ken_id INT AUTO_INCREMENT PRIMARY KEY,
     ken_code VARCHAR(20) NOT NULL
-<<<<<<< HEAD
-=======
-
->>>>>>> 64d0a543daa21b05d762008ea6d4d6953ad42b64
 );
 
 CREATE TABLE ICD10_codes (
    icd_id VARCHAR(10) PRIMARY KEY,
-<<<<<<< HEAD
    icd_description VARCHAR(50) NOT NULL,  
-=======
-   icd_description VARCHAR(50) NOT NULL ,  
->>>>>>> 64d0a543daa21b05d762008ea6d4d6953ad42b64
    icd_category VARCHAR(50) NULL
 );
 
@@ -37,11 +29,7 @@ CREATE TABLE hospital_department (
     department_name VARCHAR(50) NOT NULL,
     dep_description TEXT,
     dep_building VARCHAR(50) NOT NULL,
-<<<<<<< HEAD
     dep_floor INT NOT NULL,
-=======
-    dep_floor INT NOT NULL ,
->>>>>>> 64d0a543daa21b05d762008ea6d4d6953ad42b64
     department_director INT NOT NULL
 );
 
@@ -76,7 +64,7 @@ CREATE TABLE department_room (
 
 CREATE TABLE nurse_grade (
     nurse_grade_id INT AUTO_INCREMENT PRIMARY KEY,
-    grade_description ENUM('Supervisor Nurse', 'Nurse', 'Assistant Nurse') NOT NULL
+    grade_description ENUM('Assistant Nurse', 'Nurse', 'Supervisor Nurse') NOT NULL
 );
 
 CREATE TABLE nurse (
@@ -160,11 +148,7 @@ CREATE TABLE hospitalization (
     ICD10_admission_id VARCHAR(10) NOT NULL,
     ICD10_discharge_id VARCHAR(10) NULL,
     ken_id INT NOT NULL,
-<<<<<<< HEAD
     extra_cost DECIMAL(10, 2) DEFAULT 0.00,
-=======
-    extra_cost DECIMAL(10, 2) DEFAULT 0.00 ,
->>>>>>> 64d0a543daa21b05d762008ea6d4d6953ad42b64
     total_cost DECIMAL(10, 2),
     review_id INT NULL
 );
@@ -202,6 +186,7 @@ CREATE TABLE medical_act (
     main_surgeon_id INT NOT NULL,
     hospitalization_id INT NOT NULL,
     department_room_id INT NOT NULL,
+    department_id INT NOT NULL,
     medical_act_code VARCHAR(20) NOT NULL
 );
 
@@ -224,11 +209,7 @@ CREATE TABLE medical_act_has_employee (
 
 CREATE TABLE medicine_has_active_substance (
     medication_id INT NOT NULL,
-<<<<<<< HEAD
     active_substance_id INT NOT NULL,
-=======
-    active_substance_id INT NOT NULL ,
->>>>>>> 64d0a543daa21b05d762008ea6d4d6953ad42b64
     PRIMARY KEY (medication_id, active_substance_id)
 );
 
