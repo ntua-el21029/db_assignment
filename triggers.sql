@@ -1,5 +1,7 @@
 USE hospital_db;
 
+DELIMITER //
+
 CREATE TRIGGER supervisor_nurse_check
 BEFORE INSERT ON nurse
 FOR EACH ROW
@@ -16,3 +18,4 @@ BEGIN
     END IF;
 END;
 
+DELIMITER;
