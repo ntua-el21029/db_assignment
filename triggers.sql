@@ -171,6 +171,62 @@ BEGIN
     END IF;
 END;
 
+--oxi panv apo 3 synexomenes nyxterines bardies 
+CREATE TRIGGER check_max_3_night_shifts
+BEFORE INSERT ON duty_schedule_team
+FOR EACH ROW
+BEGIN
+    DECLARE new_shift_desc VARCHAR(20);
+    DECLARE new_date DATE;
+    
+   
+    DECLARE d_m1 INT DEFAULT 0; -- Ημέρα -1 (Χθες)
+    DECLARE d_m2 INT DEFAULT 0; -- Ημέρα -2 (Προχθές)
+    DECLARE d_m3 INT DEFAULT 0; -- Ημέρα -3
+    DECLARE d_p1 INT DEFAULT 0; -- Ημέρα +1 (Αύριο)
+    DECLARE d_p2 INT DEFAULT 0; -- Ημέρα +2 (Μεθαύριο)
+    DECLARE d_p3 INT DEFAULT 0; -- Ημέρα +3
+
+    
+    SELECT st.shift_description, ds.date INTO new_shift_desc, new_date
+    FROM duty_schedule ds
+    JOIN shift_type st ON ds.shift_type_id = st.shift_type_id
+    WHERE ds.duty_id = NEW.duty_id;
+
+    -- an h nea bardia einai night kanoyme elegxo
+    IF new_shift_desc = 'Night' THEN
+        
+        -- Σαρώνουμε τις βάρδιες του υπαλλήλου στο παράθυρο των 7 ημερών (3 πριν, 3 μετά)
+        -- και βάζουμε "1" στα κουτάκια αν βρούμε νυχτερινή βάρδια εκείνη τη μέρα.
+        SELECT 
+            MAX(CASE WHEN ds.date = DATE_SUB(new_date, INTERVAL 1 DAY) THEN 1 ELSE 0 END),
+            MAX(CASE WHEN ds.date = DATE_SUB(new_date, INTERVAL 2 DAY) THEN 1 ELSE 0 END),
+            MAX(CASE WHEN ds.date = DATE_SUB(new_date, INTERVAL 3 DAY) THEN 1 ELSE 0 END),
+            MAX(CASE WHEN ds.date = DATE_ADD(new_date, INTERVAL 1 DAY) THEN 1 ELSE 0 END),
+            MAX(CASE WHEN ds.date = DATE_ADD(new_date, INTERVAL 2 DAY) THEN 1 ELSE 0 END),
+            MAX(CASE WHEN ds.date = DATE_ADD(new_date, INTERVAL 3 DAY) THEN 1 ELSE 0 END)
+        INTO d_m1, d_m2, d_m3, d_p1, d_p2, d_p3
+        FROM duty_schedule_team dst
+        JOIN duty_schedule ds ON dst.duty_id = ds.duty_id
+        JOIN shift_type st ON ds.shift_type_id = st.shift_type_id
+        WHERE dst.employee_id = NEW.employee_id 
+          AND st.shift_description = 'Night'
+          AND ds.date BETWEEN DATE_SUB(new_date, INTERVAL 3 DAY) AND DATE_ADD(new_date, INTERVAL 3 DAY);
+
+        
+        IF (d_m3 = 1 AND d_m2 = 1 AND d_m1 = 1) OR
+           (d_m2 = 1 AND d_m1 = 1 AND d_p1 = 1) OR
+           (d_m1 = 1 AND d_p1 = 1 AND d_p2 = 1) OR
+           (d_p1 = 1 AND d_p2 = 1 AND d_p3 = 1) THEN
+            
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Απαγορεύεται η συμμετοχή σε περισσότερες από 3 συνεχόμενες νυχτερινές βάρδιες!';
+        END IF;
+        
+    END IF;
+END;
+
+
+
 //
 
 DELIMITER ;
