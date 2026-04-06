@@ -4,18 +4,17 @@ USE hospital_db;
 
 CREATE TABLE ken_system (
     ken_id INT AUTO_INCREMENT PRIMARY KEY,
-    ken_code VARCHAR(20) NOT NULL,
-
+    ken_code VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE ICD10_codes (
    icd_id VARCHAR(10) PRIMARY KEY,
-   icd_description VARCHAR(50) NOT NULL   
+   icd_description VARCHAR(50) NOT NULL,  
    icd_category VARCHAR(50) NULL
 );
 
 CREATE TABLE employee (
-    employee_id INT PRIMARY KEY AYTO_INCREMENT,
+    employee_id INT PRIMARY KEY AUTO_INCREMENT,
     empl_first_name VARCHAR(30) NOT NULL,
     empl_last_name VARCHAR(30) NOT NULL,
     empl_email VARCHAR(50) NOT NULL,
@@ -30,7 +29,7 @@ CREATE TABLE hospital_department (
     department_name VARCHAR(50) NOT NULL,
     dep_description TEXT,
     dep_building VARCHAR(50) NOT NULL,
-    dep_floor INT NOT NULL
+    dep_floor INT NOT NULL,
     department_director INT NOT NULL
 );
 
@@ -146,10 +145,10 @@ CREATE TABLE hospitalization (
     department_id INT NOT NULL,
     admission_date DATETIME NOT NULL,
     discharge_date DATETIME NULL,
-    ICD10_admission_id INT NOT NULL,
-    ICD10_discharge_id INT NULL,
+    ICD10_admission_id VARCHAR(10) NOT NULL,
+    ICD10_discharge_id VARCHAR(10) NULL,
     ken_id INT NOT NULL,
-    extra_cost DECIMAL(10, 2) DEFAULT 0.00
+    extra_cost DECIMAL(10, 2) DEFAULT 0.00,
     total_cost DECIMAL(10, 2),
     review_id INT NULL
 );
@@ -209,7 +208,7 @@ CREATE TABLE medical_act_has_employee (
 
 CREATE TABLE medicine_has_active_substance (
     medication_id INT NOT NULL,
-    active_substance_id INT NOT NULL
+    active_substance_id INT NOT NULL,
     PRIMARY KEY (medication_id, active_substance_id)
 );
 
@@ -246,5 +245,5 @@ CREATE TABLE doctor (
     employee_id INT NOT NULL,
     grade_id INT NOT NULL,
     specialty_id INT NOT NULL,
-    supervisor_doctor_id  NULL 
+    supervisor_doctor_id INT NULL 
 );
