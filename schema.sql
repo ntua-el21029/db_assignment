@@ -45,7 +45,7 @@ CREATE TABLE shift_type (
 
 CREATE TABLE duty_schedule (             
     duty_id INT AUTO_INCREMENT PRIMARY KEY,  
-    date DATE NOT NULL,
+    duty_date DATE NOT NULL,
     shift_type_id INT NOT NULL,
     hospital_department_id INT NOT NULL
 );
