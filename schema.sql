@@ -43,8 +43,8 @@ CREATE TABLE shift_type (
     shift_description ENUM ('Morning', 'Afternoon', 'Night') NOT NULL
 );
 
-CREATE TABLE duty_schedule (             -- xreiazetai kai thn omada proswpikou ths vardias pou leipei
-    duty_id INT AUTO_INCREMENT PRIMARY KEY,  --  ara prepei na ftiaxtei meta ton doctor
+CREATE TABLE duty_schedule (             
+    duty_id INT AUTO_INCREMENT PRIMARY KEY,  
     date DATE NOT NULL,
     shift_type_id INT NOT NULL,
     hospital_department_id INT NOT NULL
