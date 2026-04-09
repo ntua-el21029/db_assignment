@@ -4,13 +4,16 @@ USE hospital_db;
 
 CREATE TABLE ken_system (
     ken_id INT AUTO_INCREMENT PRIMARY KEY,
-    ken_code VARCHAR(20) NOT NULL
+    ken_code VARCHAR(20) NOT NULL,
+    base_cost DECIMAL(10,2) NOT NULL,
+    mdn_days INT NOT NULL
 );
 
 CREATE TABLE ICD10_codes (
    icd_id VARCHAR(10) PRIMARY KEY,
-   icd_description VARCHAR(50) NOT NULL,  
-   icd_category VARCHAR(50) NULL
+   icd_description VARCHAR(100) NOT NULL,  
+   icd_category VARCHAR(50) NOT NULL,
+   SET icd_category = SUBSTRING(icd_id, 1, 1)
 );
 
 CREATE TABLE employee (
