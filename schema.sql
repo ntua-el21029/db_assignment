@@ -3,14 +3,13 @@ CREATE DATABASE hospital_db;
 USE hospital_db;
 
 CREATE TABLE ken_system (
-    ken_id INT(11) NOT NULL AUTO_INCREMENT ,
+    ken_id INT(11) AUTO_INCREMENT PRIMARY KEY,
     ken_code VARCHAR(20) NOT NULL,
     ken_description VARCHAR(255)  NOT NULL,
     base_cost DECIMAL(10,2) NOT NULL,
     mdn_days INT(11) NOT NULL ,
     category_code VARCHAR(10) DEFAULT NULL,
-    category_description VARCHAR(255) DEFAULT NULL, 
-    PRIMARY KEY (ken_id)
+    category_description VARCHAR(255) DEFAULT NULL
 );
 
 CREATE TABLE ICD10_codes (
