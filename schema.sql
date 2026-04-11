@@ -15,8 +15,7 @@ CREATE TABLE ken_system (
 CREATE TABLE ICD10_codes (
    icd_id VARCHAR(10) PRIMARY KEY,
    icd_description VARCHAR(100) NOT NULL,  
-   icd_category VARCHAR(50) NOT NULL,
-   SET icd_category = SUBSTRING(icd_id, 1, 1)
+   icd_category VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE employee (
