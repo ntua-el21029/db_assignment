@@ -8,8 +8,6 @@ CREATE TABLE ken_system (
     ken_description VARCHAR(255)  NOT NULL,
     base_cost DECIMAL(10,2) NOT NULL,
     mdn_days INT(11) NOT NULL ,
-    category_code VARCHAR(10) DEFAULT NULL,
-    category_description VARCHAR(255) DEFAULT NULL
 );
 
 CREATE TABLE ICD10_codes (
