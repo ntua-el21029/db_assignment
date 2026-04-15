@@ -6,13 +6,29 @@ ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 (ken_code, ken_description, base_cost, mdn_days);
 
-LOAD DATA INFILE 'icd10_3digit_categories.csv' 
+LOAD DATA INFILE 'icd10_3digit.csv' 
 INTO TABLE ICD10_codes 
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 (icd_description, icd_category);
+
+LOAD DATA INFILE 'active_substances.csv' 
+INTO TABLE active_substances
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ',' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+(substance_name, substance_description);
+
+LOAD DATA INFILE 'medicine_has_active_substance.csv' 
+INTO TABLE medicine_has_active_substance
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ',' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+(medication_id, active_substance_id);
 
 LOAD DATA INFILE 'medicines_table_import.csv' 
 INTO TABLE medicines 
