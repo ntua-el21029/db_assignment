@@ -167,7 +167,7 @@ CREATE TABLE review (
 
 CREATE TABLE medical_act_categories (
     act_code VARCHAR(20) PRIMARY KEY, 
-    category CHAR(1) NOT NULL,       
+    category VARCHAR(100) NOT NULL,       
     act_description TEXT NOT NULL               
 );
 
