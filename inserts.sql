@@ -5,8 +5,6 @@ FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 (ken_code, ken_description, base_cost, mdn_days);
-na to balv sta inserts ?
-
 
 LOAD DATA INFILE 'medicines_table_import.csv' 
 INTO TABLE medicines 
