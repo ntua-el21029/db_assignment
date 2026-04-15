@@ -198,10 +198,10 @@ CREATE TABLE medical_act (
 CREATE TABLE medicines (
     medication_id INT PRIMARY KEY AUTO_INCREMENT,
     medication_name VARCHAR(100) NOT NULL,
-    medication_route VARCHAR(45),
-    medication_auth_country VARCHAR(45),
+    medication_route VARCHAR(100),
+    medication_auth_country VARCHAR(100),
     medication_auth_holder VARCHAR(100),
-    medication_file_location VARCHAR(255),
+    medication_file_location VARCHAR(100),
     medication_email VARCHAR(100),
     medication_number VARCHAR(50)
 );
