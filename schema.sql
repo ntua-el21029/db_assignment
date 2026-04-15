@@ -177,7 +177,13 @@ CREATE TABLE laboratory_exams(
     exam_result TEXT NOT NULL,
     doctor_id INT NOT NULL, 
     hospitalization_id INT NOT NULL,
-    act_code VARCHAR(20) NOT NULL
+    exam_code VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE laboratory_exam_categories (
+    exam_code VARCHAR(20) PRIMARY KEY,
+    category VARCHAR(100) NOT NULL,
+    exam_description TEXT NOT NULL
 );
 
 CREATE TABLE medical_act (

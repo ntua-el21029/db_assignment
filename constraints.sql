@@ -64,7 +64,7 @@ ALTER TABLE hospitalization
 ALTER TABLE laboratory_exams
     ADD CONSTRAINT fk_lab_exam_doctor FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id),
     ADD CONSTRAINT fk_lab_exam_hospitalization FOREIGN KEY (hospitalization_id) REFERENCES hospitalization(hospitalization_id),
-    ADD CONSTRAINT fk_lab_exam_act FOREIGN KEY (act_code) REFERENCES medical_act_categories(act_code);
+    ADD CONSTRAINT fk_lab_exam_category FOREIGN KEY (exam_code) REFERENCES laboratory_exam_categories(exam_code);
 
 ALTER TABLE medical_act
     ADD CONSTRAINT fk_medical_act_surgeon FOREIGN KEY (main_surgeon_id) REFERENCES doctor(doctor_id),
