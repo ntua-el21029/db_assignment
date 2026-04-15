@@ -12,7 +12,7 @@ CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
-(icd_description, icd_category);
+(icd_id, icd_description, icd_category);
 
 LOAD DATA INFILE 'active_substances.csv' 
 INTO TABLE active_substances
