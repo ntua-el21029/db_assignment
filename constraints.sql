@@ -6,12 +6,7 @@ ALTER TABLE nurse
     ADD CONSTRAINT fk_nurse_employee FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
     ADD CONSTRAINT fk_nurse_grade FOREIGN KEY (nurse_grade_id) REFERENCES nurse_grade(nurse_grade_id),
     ADD CONSTRAINT fk_nurse_department FOREIGN KEY (hospital_department_id) REFERENCES hospital_department(department_id),
-    ADD CONSTRAINT fk_nurse_supervisor FOREIGN KEY (supervisor_nurse_id) REFERENCES nurse(nurse_id),
-
-    ADD CONSTRAINT check_supervisor_logic CHECK (
-        (nurse_grade_id = 1 AND supervisor_nurse_id IS NULL) OR
-        (nurse_grade_id <> 1 AND supervisor_nurse_id IS NOT NULL)
-    );
+    ADD CONSTRAINT fk_nurse_supervisor FOREIGN KEY (supervisor_nurse_id) REFERENCES nurse(nurse_id);
 
 
 ALTER TABLE administrative_staff
