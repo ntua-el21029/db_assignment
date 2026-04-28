@@ -118,7 +118,7 @@ CREATE TABLE triage (
 
 CREATE TABLE patient (
     patient_id INT AUTO_INCREMENT PRIMARY KEY,
-    amka INT NOT NULL UNIQUE,
+    amka VARCHAR(11) NOT NULL UNIQUE,
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
     father_name VARCHAR(30) NOT NULL,
@@ -252,7 +252,7 @@ CREATE TABLE patient_has_allergy (
 CREATE TABLE doctor_grade (
     grade_id INT AUTO_INCREMENT PRIMARY KEY,
     grade_description VARCHAR(50) NOT NULL,
-    
+
     CHECK (grade_description IN ('Attending', 'Currator B', 'Currrator A', 'Chief'))
 );
 
