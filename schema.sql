@@ -18,6 +18,8 @@ CREATE TABLE ICD10_codes (
 
 CREATE TABLE employee (
     employee_id INT PRIMARY KEY AUTO_INCREMENT,
+    empl_amka VARCHAR(11) NOT NULL UNIQUE,
+    empl_birth_date DATE NOT NULL,
     empl_first_name VARCHAR(30) NOT NULL,
     empl_last_name VARCHAR(30) NOT NULL,
     empl_email VARCHAR(50) NOT NULL,
