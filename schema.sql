@@ -84,7 +84,12 @@ CREATE TABLE nurse (
     employee_id INT NOT NULL,
     nurse_grade_id INT NOT NULL,
     hospital_department_id INT NOT NULL,
-    supervisor_nurse_id INT NULL
+    supervisor_nurse_id INT NULL,
+
+     CHECK (
+        (nurse_grade_id = 1 AND supervisor_nurse_id IS NULL) OR
+        (nurse_grade_id <> 1 AND supervisor_nurse_id IS NOT NULL)
+     )
 );
 
 
