@@ -25,7 +25,8 @@ CREATE TABLE employee (
     empl_email VARCHAR(50) NOT NULL,
     empl_phone VARCHAR(15) NOT NULL,
     empl_hiring_date DATE DEFAULT (CURRENT_DATE),
-    empl_type ENUM('doctor', 'nurse', 'administrative_staff') NOT NULL
+    empl_type VARCHAR(10) NOT NULL, 
+    CHECK (empl_type IN ('doctor', 'nurse', 'administrative_staff'))
 );
 
 
@@ -42,7 +43,8 @@ CREATE TABLE shift_type (
     shift_type_id INT AUTO_INCREMENT PRIMARY KEY,
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
-    shift_description ENUM ('Morning', 'Afternoon', 'Night') NOT NULL
+    shift_type VARCHAR(20) NOT NULL,
+    CHECK (shift_type IN ('Morning', 'Afternoon', 'Night'))
 );
 
 CREATE TABLE duty_schedule (             
@@ -60,16 +62,21 @@ CREATE TABLE duty_schedule_team (
 
 CREATE TABLE department_room (
     room_id INT NOT NULL,
-    roo_type ENUM('Surgery Room', 'Patient Room') NOT NULL,
-    room_status ENUM('Available', 'Occupied', 'Under Maintenance') NOT NULL,
+    room_type VARCHAR(20) NOT NULL,
+    room_status VARCHAR(50) NOT NULL,
     hospital_department_id INT NOT NULL,
+
+    CHECK (room_type IN ('Surgery Room', 'Patient Room')),
+    CHECK (room_status IN ('Available', 'Occupied', 'Under Maintenance')),
 
     PRIMARY KEY (room_id, hospital_department_id)
 );
 
 CREATE TABLE nurse_grade (
     nurse_grade_id INT AUTO_INCREMENT PRIMARY KEY,
-    grade_description ENUM('Supervisor Nurse', 'Nurse', 'Assistant Nurse') NOT NULL
+    grade_description VARCHAR(50) NOT NULL,
+
+    CHECK (grade_description IN ('Supervisor Nurse', 'Nurse', 'Assistant Nurse'))
 );
 
 CREATE TABLE nurse (
@@ -83,7 +90,9 @@ CREATE TABLE nurse (
 
 CREATE TABLE staff_role (
     role_id INT AUTO_INCREMENT PRIMARY KEY,
-    role_description ENUM('Accountant', 'Secretary', 'Director')
+    role_description VARCHAR(50) NOT NULL,
+
+    CHECK (role_description IN ('Accountant', 'Secretary', 'Director'))
 );
 
 CREATE TABLE administrative_staff (
@@ -101,8 +110,9 @@ CREATE TABLE triage (
     arrival_time DATETIME DEFAULT (CURRENT_TIMESTAMP),
     emergency_level TINYINT NOT NULL,
     symptoms TEXT NOT NULL,
-    outcome ENUM('Hospitalization', 'Discharge') NOT NULL,
+    outcome VARCHAR(50) NOT NULL,
 
+    CHECK (outcome IN ('Discharge', 'Hospitalization')),
     CHECK (emergency_level BETWEEN 1 AND 5)
 );
 
@@ -113,7 +123,7 @@ CREATE TABLE patient (
     last_name VARCHAR(30) NOT NULL,
     father_name VARCHAR(30) NOT NULL,
     birth_date DATE NOT NULL,
-    gender ENUM('Male', 'Female', 'Other') NOT NULL,
+    gender VARCHAR(10) NOT NULL,
     nationality VARCHAR(30) NOT NULL,
     height_cm INT NOT NULL,
     weight_kg INT NOT NULL,
@@ -122,7 +132,10 @@ CREATE TABLE patient (
     email VARCHAR(50) NOT NULL,
     profession VARCHAR(50) NOT NULL,
     emergency_contact VARCHAR(100) NOT NULL,
-    insurance_provider ENUM('Public', 'Private', 'None') NOT NULL
+    insurance_provider VARCHAR(10) NOT NULL,
+
+    CHECK (gender IN ('Male', 'Female', 'Other')),
+    CHECK (insurance_provider IN ('Public', 'Private', 'None'))
 );
 
 
@@ -238,7 +251,9 @@ CREATE TABLE patient_has_allergy (
 
 CREATE TABLE doctor_grade (
     grade_id INT AUTO_INCREMENT PRIMARY KEY,
-    grade_description ENUM('Attending', 'Currator B', 'Currrator A', 'Chief') NOT NULL
+    grade_description VARCHAR(50) NOT NULL,
+    
+    CHECK (grade_description IN ('Attending', 'Currator B', 'Currrator A', 'Chief'))
 );
 
 CREATE TABLE doctor_specialty (
