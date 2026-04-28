@@ -255,6 +255,7 @@ CREATE TABLE doctor_department (
 CREATE TABLE doctor (
     doctor_id INT AUTO_INCREMENT PRIMARY KEY,
     employee_id INT NOT NULL,
+    license_number VARCHAR(20) NOT NULL UNIQUE,
     grade_id INT NOT NULL,
     specialty_id INT NOT NULL,
     supervisor_doctor_id INT NULL 
