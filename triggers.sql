@@ -24,7 +24,75 @@ BEGIN
         END IF;
     END IF;
 END;
+
+
+//-- TRIGGER BEFORE INSERT TO CHECK DOCTOR HIERARCHY AND PREVENT CIRCULAR SUPERVISION
+CREATE TRIGGER check_doctor_hierarchy_insert
+BEFORE INSERT ON doctor
+FOR EACH ROW
+BEGIN
+
+    IF NEW.grade_id = 1 AND NEW.supervisor_doctor_id IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: An Attending doctor must have a supervisor.';
+    END IF;
+
+    IF NEW.grade_id = 4 AND NEW.supervisor_doctor_id IS NOT NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: A Chief doctor cannot have a supervisor.';
+    END IF;
+
+
+    IF NEW.supervisor_doctor_id IS NOT NULL AND NEW.doctor_id IS NOT NULL AND NEW.supervisor_doctor_id = NEW.doctor_id THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: A doctor cannot supervise themselves.';
+    END IF;
+END;
 //
+
+-- TRIGGER BEFORE UPDATE TO CHECK DOCTOR HIERARCHY AND PREVENT CIRCULAR SUPERVISION
+CREATE TRIGGER check_doctor_hierarchy_update
+BEFORE UPDATE ON doctor
+FOR EACH ROW
+BEGIN
+   
+    IF NEW.grade_id = 1 AND NEW.supervisor_doctor_id IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: An Attending doctor must have a supervisor.';
+    END IF;
+
+    IF NEW.grade_id = 4 AND NEW.supervisor_doctor_id IS NOT NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: A Chief doctor cannot have a supervisor.';
+    END IF;
+
+    
+    IF NEW.supervisor_doctor_id = NEW.doctor_id THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: A doctor cannot supervise themselves.';
+    END IF;
+
+   --
+    IF NEW.supervisor_doctor_id IS NOT NULL AND (OLD.supervisor_doctor_id IS NULL OR NEW.supervisor_doctor_id <> OLD.supervisor_doctor_id) THEN
+        IF EXISTS (
+            WITH RECURSIVE supervisor_chain AS (
+                -- Start with the immediate supervisor of the new doctor
+                SELECT supervisor_doctor_id
+                FROM doctor
+                WHERE doctor_id = NEW.supervisor_doctor_id
+                
+                UNION ALL
+                
+                -- Recursively find all supervisors up the chain
+                SELECT d.supervisor_doctor_id
+                FROM doctor d
+                INNER JOIN supervisor_chain sc ON d.doctor_id = sc.supervisor_doctor_id
+                WHERE d.supervisor_doctor_id IS NOT NULL
+            )
+            -- If the current doctor (NEW.doctor_id) is found within the supervisor chain of the new supervisor, we have a cycle
+            SELECT 1 FROM supervisor_chain WHERE supervisor_doctor_id = NEW.doctor_id
+        ) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Circular supervision detected!';
+        END IF;
+    END IF;
+END;
+//
+
+
 
 CREATE TRIGGER check_medical_act_overlap
 BEFORE INSERT ON medical_act
@@ -83,29 +151,6 @@ BEGIN
 END;
 //
 
-CREATE TRIGGER check_doctor_hierarchy
-BEFORE INSERT ON doctor
-FOR EACH ROW
-BEGIN
-    IF NEW.grade_id = 1 AND NEW.supervisor_doctor_id IS NULL THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Ο Ειδικευόμενος ιατρός πρέπει υποχρεωτικά να έχει επόπτη.';
-    END IF;
-
-    IF NEW.grade_id = 4 AND NEW.supervisor_doctor_id IS NOT NULL THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Ο Διευθυντής δεν επιτρέπεται να έχει επόπτη.';
-    END IF;
-
-    IF NEW.supervisor_doctor_id IS NOT NULL THEN
-        IF EXISTS (
-            SELECT 1 FROM doctor 
-            WHERE doctor_id = NEW.supervisor_doctor_id 
-              AND supervisor_doctor_id = NEW.doctor_id
-        ) THEN
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Απαγορεύεται η κυκλική εποπτεία μεταξύ δύο ιατρών.';
-        END IF;
-    END IF;
-END;
-//
 
 CREATE TRIGGER prevent_allergic_prescription
 BEFORE INSERT ON medication_treatment
