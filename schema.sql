@@ -279,4 +279,10 @@ CREATE TABLE doctor (
     grade_id INT NOT NULL,
     specialty_id INT NOT NULL,
     supervisor_doctor_id INT NULL 
+
+    ADD CONSTRAINT doctors_supervisor_check CHECK (
+        (grade_id = 1 AND supervisor_doctor_id IS NOT NULL) OR
+        (grade_id = 4 AND supervisor_doctor_id IS NULL) OR
+        ( grade_id IN (2, 3))
+     )
 );
