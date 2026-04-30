@@ -36,6 +36,7 @@ CREATE TABLE hospital_department (
     dep_description TEXT,
     dep_building VARCHAR(50) NOT NULL,
     dep_floor INT NOT NULL,
+    dep_total_bed INT NOT NULL DEFAULT 0,
     department_director INT NOT NULL
 );
 
@@ -66,7 +67,7 @@ CREATE TABLE department_room (
     room_status VARCHAR(50) NOT NULL,
     hospital_department_id INT NOT NULL,
 
-    CHECK (room_type IN ('Surgery Room', 'Patient Room')),
+    CHECK (room_type IN ('Surgery Room', 'Single Bed Patient Room ', 'Multi Bed Patient Room', 'Intensive Care Unit')),
     CHECK (room_status IN ('Available', 'Occupied', 'Under Maintenance')),
 
     PRIMARY KEY (room_id, hospital_department_id)
