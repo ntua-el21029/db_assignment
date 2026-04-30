@@ -26,7 +26,8 @@ CREATE TABLE employee (
     empl_phone VARCHAR(15) NOT NULL,
     empl_hiring_date DATE DEFAULT (CURRENT_DATE),
     empl_type VARCHAR(10) NOT NULL, 
-    CHECK (empl_type IN ('doctor', 'nurse', 'administrative_staff'))
+
+    CONSTRAINT chk_empl_type CHECK (empl_type IN ('doctor', 'nurse', 'administrative_staff'))
 );
 
 
@@ -45,7 +46,8 @@ CREATE TABLE shift_type (
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
     shift_type VARCHAR(20) NOT NULL,
-    CHECK (shift_type IN ('Morning', 'Afternoon', 'Night'))
+
+    CONSTRAINT chk_shift_type CHECK (shift_type IN ('Morning', 'Afternoon', 'Night'))
 );
 
 CREATE TABLE duty_schedule (             
@@ -67,8 +69,8 @@ CREATE TABLE department_room (
     room_status VARCHAR(50) NOT NULL,
     hospital_department_id INT NOT NULL,
 
-    CHECK (room_type IN ('Surgery Room', 'Single Bed Patient Room ', 'Multi Bed Patient Room', 'Intensive Care Unit')),
-    CHECK (room_status IN ('Available', 'Occupied', 'Under Maintenance')),
+    CONSTRAINT chk_room_type CHECK (room_type IN ('Surgery Room', 'Single Bed Patient Room ', 'Multi Bed Patient Room', 'Intensive Care Unit')),
+    CONSTRAINT chk_room_status CHECK (room_status IN ('Available', 'Occupied', 'Under Maintenance')),
 
     PRIMARY KEY (room_id, hospital_department_id)
 );
@@ -77,7 +79,7 @@ CREATE TABLE nurse_grade (
     nurse_grade_id INT AUTO_INCREMENT PRIMARY KEY,
     grade_description VARCHAR(50) NOT NULL,
 
-    CHECK (grade_description IN ('Supervisor Nurse', 'Nurse', 'Assistant Nurse'))
+    CONSTRAINT chk_nurse_grade_desc CHECK (grade_description IN ('Supervisor Nurse', 'Nurse', 'Assistant Nurse'))
 );
 
 CREATE TABLE nurse (
@@ -87,18 +89,17 @@ CREATE TABLE nurse (
     hospital_department_id INT NOT NULL,
     supervisor_nurse_id INT NULL,
 
-     CHECK (
+    CONSTRAINT chk_nurse_supervisor CHECK (
         (nurse_grade_id = 1 AND supervisor_nurse_id IS NULL) OR
         (nurse_grade_id <> 1 AND supervisor_nurse_id IS NOT NULL)
      )
 );
 
-
 CREATE TABLE staff_role (
     role_id INT AUTO_INCREMENT PRIMARY KEY,
     role_description VARCHAR(50) NOT NULL,
 
-    CHECK (role_description IN ('Accountant', 'Secretary', 'Director'))
+    CONSTRAINT chk_staff_role_desc CHECK (role_description IN ('Accountant', 'Secretary', 'Director'))
 );
 
 CREATE TABLE administrative_staff (
@@ -138,10 +139,11 @@ CREATE TABLE patient (
     email VARCHAR(50) NOT NULL,
     profession VARCHAR(50) NOT NULL,
     emergency_contact VARCHAR(100) NOT NULL,
-    insurance_provider VARCHAR(10) NOT NULL,
+    insurance_provider VARCHAR(30) NOT NULL,
 
-    CHECK (gender IN ('Male', 'Female', 'Other')),
-    CHECK (insurance_provider IN ('Public', 'Private', 'None'))
+    CONSTRAINT chk_gender CHECK (gender IN ('Male', 'Female', 'Other')),
+    CONSTRAINT chk_insurance_provider CHECK (insurance_provider IN ('Public', 'Private', 'None')),
+    CONSTRAINT chk_amka_length CHECK (LENGTH(amka) = 11)
 );
 
 
@@ -259,7 +261,7 @@ CREATE TABLE doctor_grade (
     grade_id INT AUTO_INCREMENT PRIMARY KEY,
     grade_description VARCHAR(50) NOT NULL,
 
-    CHECK (grade_description IN ('Attending', 'Currator B', 'Currrator A', 'Chief'))
+    CONSTRAINT chk_doctors_grade CHECK (grade_description IN ('Attending', 'Currator B', 'Currrator A', 'Chief'))
 );
 
 CREATE TABLE doctor_specialty (
@@ -281,7 +283,7 @@ CREATE TABLE doctor (
     specialty_id INT NOT NULL,
     supervisor_doctor_id INT NULL 
 
-    ADD CONSTRAINT doctors_supervisor_check CHECK (
+    CONSTRAINT doctors_supervisor_check CHECK (
         (grade_id = 1 AND supervisor_doctor_id IS NOT NULL) OR
         (grade_id = 4 AND supervisor_doctor_id IS NULL) OR
         ( grade_id IN (2, 3))
