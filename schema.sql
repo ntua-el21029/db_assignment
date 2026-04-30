@@ -47,7 +47,8 @@ CREATE TABLE shift_type (
     end_time TIME NOT NULL,
     shift_type VARCHAR(20) NOT NULL,
 
-    CONSTRAINT chk_shift_type CHECK (shift_type IN ('Morning', 'Afternoon', 'Night'))
+    CONSTRAINT chk_shift_type CHECK (shift_type IN ('Morning', 'Afternoon', 'Night')),
+    CONSTRAINT chk_shift_duration CHECK (HOUR(TIMEDIFF(end_time, start_time)) = 8 OR HOUR(TIMEDIFF(end_time, start_time)) = -16)
 );
 
 CREATE TABLE duty_schedule (             
@@ -289,3 +290,23 @@ CREATE TABLE doctor (
         ( grade_id IN (2, 3))
      )
 );
+
+
+CREATE OR REPLACE VIEW check_shift_completeness AS
+SELECT 
+    ds.duty_id,
+    ds.duty_date,
+    hd.department_name,
+    st.shift_type_name,
+    COUNT(CASE WHEN d.doctor_id IS NOT NULL THEN 1 END) AS doctor_count,
+    COUNT(CASE WHEN n.nurse_id IS NOT NULL THEN 1 END) AS nurse_count,
+    COUNT(CASE WHEN adm.staff_id IS NOT NULL THEN 1 END) AS admin_count
+
+FROM duty_schedule ds
+JOIN hospital_department hd ON ds.hospital_department_id = hd.department_id
+JOIN shift_type st ON ds.shift_type_id = st.shift_type_id
+LEFT JOIN duty_schedule_team dst ON ds.duty_id = dst.duty_id
+LEFT JOIN doctor d ON dst.employee_id = d.doctor_id
+LEFT JOIN nurse n ON dst.employee_id = n.nurse_id
+LEFT JOIN administrative_staff adm ON dst.employee_id = adm.employee_id
+GROUP BY ds.duty_id, ds.duty_date, hd.department_name, st.shift_type_name;
