@@ -93,6 +93,48 @@ END;
 //
 
 
+-- TRIGGER BEFORE INSERT TO CHECK DEPARTMENT DIRECTOR'S GRADE
+CREATE TRIGGER check_dept_director_insert
+BEFORE INSERT ON hospital_department
+FOR EACH ROW
+BEGIN
+    DECLARE doctor_grade_val INT;
+
+    
+    SELECT grade_id INTO doctor_grade_val
+    FROM doctor
+    WHERE doctor_id = NEW.department_director;
+
+    -- Director must be Chief (grade_id = 4) and cannot be null
+    IF doctor_grade_val <> 4 OR doctor_grade_val IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = ' Error: The department director must have the grade "Chief".';
+    END IF;
+END;
+//
+
+-- TRIGGER BEFORE UPDATE TO CHECK DEPARTMENT DIRECTOR'S GRADE
+CREATE TRIGGER check_dept_director_update
+BEFORE UPDATE ON hospital_department
+FOR EACH ROW
+BEGIN
+    DECLARE doctor_grade_val INT;
+
+    -- The check runs only if the director is changed
+    IF NEW.department_director <> OLD.department_director THEN
+        SELECT grade_id INTO doctor_grade_val
+        FROM doctor
+        WHERE doctor_id = NEW.department_director;
+
+        IF doctor_grade_val <> 4 OR doctor_grade_val IS NULL THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = ' Error: The new department director must have the grade "Chief".';
+        END IF;
+    END IF;
+END;
+//
+
+
 
 CREATE TRIGGER check_medical_act_overlap
 BEFORE INSERT ON medical_act
