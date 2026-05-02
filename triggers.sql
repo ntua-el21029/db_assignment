@@ -215,31 +215,6 @@ BEGIN
 END;
 //
 
-CREATE TRIGGER check_medical_act_overlap
-BEFORE INSERT ON medical_act
-FOR EACH ROW
-BEGIN
-    IF EXISTS (
-        SELECT 1 FROM medical_act
-        WHERE department_room_id = NEW.department_room_id
-          AND department_id = NEW.department_id
-          AND act_start < NEW.act_end 
-          AND act_end > NEW.act_start
-    ) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Η αίθουσα χρησιμοποιείται ήδη σε άλλη επέμβαση αυτή την στιγμή';
-    END IF;
-
-    IF EXISTS (
-        SELECT 1 FROM medical_act
-        WHERE main_surgeon_id = NEW.main_surgeon_id
-          AND act_start < NEW.act_end 
-          AND act_end > NEW.act_start
-    ) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Ο ιατρός συμμετέχει ήδη ως κύριος χειρουργός σε άλλη επέμβαση αυτή την στιγμή';
-    END IF;
-END;
-//
-
 CREATE TRIGGER check_8_hour_rest
 BEFORE INSERT ON duty_schedule_team
 FOR EACH ROW
@@ -274,21 +249,6 @@ BEGIN
         )
     ) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Πρέπει να μεσολαβούν τουλάχιστον 8 ώρες ανάπαυσης μεταξύ των βαρδιών του υπαλλήλου!';
-    END IF;
-END;
-
-CREATE TRIGGER prevent_allergic_prescription
-BEFORE INSERT ON medication_treatment
-FOR EACH ROW
-BEGIN
-    IF EXISTS (
-        SELECT 1 
-        FROM medicine_has_active_substance mhas
-        JOIN patient_has_allergy pha ON mhas.active_substance_id = pha.active_substance_id
-        WHERE mhas.medication_id = NEW.medicine_id 
-          AND pha.patient_id = NEW.patient_id
-    ) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΑΚΥΡΩΣΗ: Ο ασθενής είναι αλλεργικός σε δραστική ουσία αυτού του φαρμάκου';
     END IF;
 END;
 //
@@ -379,6 +339,82 @@ BEGIN
         -- 4. Ενημέρωση πεδίων
         SET NEW.extra_cost = extra_charge;
         SET NEW.total_cost = base + extra_charge + exams_cost + acts_cost;
+    END IF;
+END;
+//
+
+CREATE TRIGGER check_medical_act_overlap
+BEFORE INSERT ON medical_act
+FOR EACH ROW
+BEGIN
+    -- 1. Έλεγχος για ίδια αίθουσα ταυτόχρονα
+    IF EXISTS (
+        SELECT 1 FROM medical_act
+        WHERE department_room_id = NEW.department_room_id
+          AND department_id = NEW.department_id
+          AND act_start < NEW.act_end 
+          AND act_end > NEW.act_start
+    ) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Η αίθουσα χρησιμοποιείται ήδη σε άλλη επέμβαση.';
+    END IF;
+
+    -- 2. Έλεγχος αν ο Κύριος Χειρουργός είναι ήδη Κύριος Χειρουργός αλλού
+    IF EXISTS (
+        SELECT 1 FROM medical_act
+        WHERE main_surgeon_id = NEW.main_surgeon_id
+          AND act_start < NEW.act_end 
+          AND act_end > NEW.act_start
+    ) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Ο ιατρός είναι ήδη κύριος χειρουργός σε άλλη επέμβαση.';
+    END IF;
+
+    -- 3. ΕΞΤΡΑ ΕΛΕΓΧΟΣ: Μήπως ο Κύριος Χειρουργός είναι βοηθός σε άλλη επέμβαση;
+    IF EXISTS (
+        SELECT 1 
+        FROM medical_act_has_employee mae
+        JOIN medical_act ma ON mae.act_id = ma.act_id
+        JOIN doctor d ON mae.employee_id = d.employee_id
+        WHERE d.doctor_id = NEW.main_surgeon_id
+          AND ma.act_start < NEW.act_end 
+          AND ma.act_end > NEW.act_start
+    ) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Ο κύριος χειρουργός συμμετέχει ήδη ως βοηθός σε άλλη επέμβαση.';
+    END IF;
+END;
+//
+
+CREATE TRIGGER check_medical_act_assistant_overlap
+BEFORE INSERT ON medical_act_has_employee
+FOR EACH ROW
+BEGIN
+    DECLARE new_start DATETIME;
+    DECLARE new_end DATETIME;
+
+    SELECT act_start, act_end INTO new_start, new_end
+    FROM medical_act WHERE act_id = NEW.act_id;
+
+    -- Έλεγχος αν ο υπάλληλος είναι ήδη βοηθός αλλού
+    IF EXISTS (
+        SELECT 1 
+        FROM medical_act_has_employee mae
+        JOIN medical_act ma ON mae.act_id = ma.act_id
+        WHERE mae.employee_id = NEW.employee_id
+          AND ma.act_start < new_end 
+          AND ma.act_end > new_start
+    ) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Ο υπάλληλος συμμετέχει ήδη ως βοηθός σε άλλη ταυτόχρονη επέμβαση.';
+    END IF;
+
+    -- Έλεγχος αν ο υπάλληλος είναι κύριος χειρουργός αλλού
+    IF EXISTS (
+        SELECT 1 
+        FROM medical_act ma
+        JOIN doctor d ON ma.main_surgeon_id = d.doctor_id
+        WHERE d.employee_id = NEW.employee_id
+          AND ma.act_start < new_end 
+          AND ma.act_end > new_start
+    ) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Ο υπάλληλος είναι κύριος χειρουργός σε άλλη ταυτόχρονη επέμβαση.';
     END IF;
 END;
 //
