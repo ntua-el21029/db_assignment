@@ -152,7 +152,10 @@ CREATE TABLE medication_treatment (
     patient_id INT NOT NULL,
     med_prescription_id INT NOT NULL,
     doctor_id INT NOT NULL,
-    medicine_id INT NOT NULL
+    medicine_id INT NOT NULL ,
+
+    CONSTRAINT unique_prescription_combo 
+    UNIQUE (doctor_id, patient_id, medicine_id, med_prescription_id)
 );
 
 CREATE TABLE medication_prescription (
@@ -200,7 +203,8 @@ CREATE TABLE laboratory_exams (
     exam_result TEXT NOT NULL,
     doctor_id INT NOT NULL, 
     hospitalization_id INT NOT NULL,
-    exam_code VARCHAR(20) NOT NULL
+    exam_code VARCHAR(20) NOT NULL,
+    exam_cost DECIMAL(10,2) NOT NULL DEFAULT 0
 );
 
 CREATE TABLE laboratory_exam_categories (
