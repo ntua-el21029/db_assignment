@@ -154,8 +154,7 @@ CREATE TABLE medication_treatment (
     doctor_id INT NOT NULL,
     medicine_id INT NOT NULL ,
 
-    CONSTRAINT unique_prescription_combo 
-    UNIQUE (doctor_id, patient_id, medicine_id, med_prescription_id)
+    CONSTRAINT unique_prescription_combo UNIQUE (doctor_id, patient_id, medicine_id, med_prescription_id)
 );
 
 CREATE TABLE medication_prescription (
