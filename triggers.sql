@@ -40,7 +40,6 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: A Chief doctor cannot have a supervisor.';
     END IF;
 
-
     IF NEW.supervisor_doctor_id IS NOT NULL AND NEW.doctor_id IS NOT NULL AND NEW.supervisor_doctor_id = NEW.doctor_id THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: A doctor cannot supervise themselves.';
     END IF;
@@ -61,12 +60,10 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: A Chief doctor cannot have a supervisor.';
     END IF;
 
-    
     IF NEW.supervisor_doctor_id = NEW.doctor_id THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: A doctor cannot supervise themselves.';
     END IF;
 
-   --
     IF NEW.supervisor_doctor_id IS NOT NULL AND (OLD.supervisor_doctor_id IS NULL OR NEW.supervisor_doctor_id <> OLD.supervisor_doctor_id) THEN
         IF EXISTS (
             WITH RECURSIVE supervisor_chain AS (
@@ -100,7 +97,6 @@ FOR EACH ROW
 BEGIN
     DECLARE doctor_grade_val INT;
 
-    
     SELECT grade_id INTO doctor_grade_val
     FROM doctor
     WHERE doctor_id = NEW.department_director;
@@ -134,7 +130,90 @@ BEGIN
 END;
 //
 
+CREATE TRIGGER check_monthly_shift_limits
+BEFORE INSERT ON duty_schedule_team
+FOR EACH ROW
+BEGIN
+    DECLARE shift_month INT;
+    DECLARE shift_year INT;
+    DECLARE current_shifts INT;
+    DECLARE emp_type VARCHAR(25);
 
+    -- Find the month and year of the shift being assigned
+    SELECT MONTH(duty_date), YEAR(duty_date) INTO shift_month, shift_year
+    FROM duty_schedule 
+    WHERE duty_id = NEW.duty_id;
+
+    -- Find the employee type (doctor, nurse, administrative_staff)
+    SELECT empl_type INTO emp_type
+    FROM employee 
+    WHERE employee_id = NEW.employee_id;
+
+    -- Count the number of shifts the employee has already worked in the same month/year
+    SELECT COUNT(*) INTO current_shifts
+    FROM duty_schedule_team dst
+    JOIN duty_schedule ds ON dst.duty_id = ds.duty_id
+    WHERE dst.employee_id = NEW.employee_id
+      AND MONTH(ds.duty_date) = shift_month
+      AND YEAR(ds.duty_date) = shift_year;
+
+    -- Check against the limits based on employee type
+    IF emp_type = 'doctor' AND current_shifts >= 15 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: The doctor has already reached the monthly limit of 15 shifts.';
+        
+    ELSEIF emp_type = 'nurse' AND current_shifts >= 20 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: The nurse has already reached the monthly limit of 20 shifts.';
+        
+    ELSEIF emp_type = 'administrative_staff' AND current_shifts >= 25 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: The administrative staff member has already reached the monthly limit of 25 shifts.';
+    END IF;
+END;
+//
+
+CREATE TRIGGER validate_complete_shift
+BEFORE UPDATE ON duty_schedule
+FOR EACH ROW
+BEGIN
+    DECLARE doc_count INT;
+    DECLARE nurse_count INT;
+    DECLARE admin_count INT;
+    DECLARE intern_count INT;
+    DECLARE senior_count INT;
+
+    -- Ελέγχουμε μόνο αν η κατάσταση αλλάζει από 0 (Draft) σε 1 (Finalized)
+    IF NEW.is_finalized = 1 AND OLD.is_finalized = 0 THEN
+        
+        -- 1. Μετράμε όλες τις κατηγορίες από τον πίνακα της ομάδας
+        SELECT 
+            COUNT(CASE WHEN e.empl_type = 'doctor' THEN 1 END),
+            COUNT(CASE WHEN e.empl_type = 'nurse' THEN 1 END),
+            COUNT(CASE WHEN e.empl_type = 'administrative_staff' THEN 1 END),
+            COUNT(CASE WHEN d.grade_id = 1 THEN 1 END), -- Ειδικευόμενοι
+            COUNT(CASE WHEN d.grade_id IN (3, 4) THEN 1 END) -- Επιμελητές/Διευθυντές
+        INTO doc_count, nurse_count, admin_count, intern_count, senior_count
+        FROM duty_schedule_team dst
+        JOIN employee e ON dst.employee_id = e.employee_id
+        LEFT JOIN doctor d ON e.employee_id = d.doctor_id
+        WHERE dst.duty_id = NEW.duty_id;
+
+        -- 2. Εφαρμογή Κανόνα: Ελάχιστο Προσωπικό (3-6-2)
+        IF doc_count < 3 OR nurse_count < 6 OR admin_count < 2 THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Ελλιπές προσωπικό (Απαιτούνται: 3 Γιατροί, 6 Νοσηλευτές, 2 Διοικητικοί).';
+        END IF;
+
+        -- 3. Εφαρμογή Κανόνα: Επίβλεψη Ειδικευόμενου
+        IF intern_count > 0 AND senior_count = 0 THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Υπάρχει Ειδικευόμενος χωρίς Επιμελητή ή Διευθυντή!';
+        END IF;
+        
+    END IF;
+END;
+//
 
 CREATE TRIGGER check_medical_act_overlap
 BEFORE INSERT ON medical_act
@@ -160,39 +239,6 @@ BEGIN
     END IF;
 END;
 //
-
-CREATE TRIGGER check_monthly_shift_limits
-BEFORE INSERT ON duty_schedule_team
-FOR EACH ROW
-BEGIN
-    DECLARE shift_month INT;
-    DECLARE shift_year INT;
-    DECLARE current_shifts INT;
-    DECLARE emp_type VARCHAR(30);
-
-    SELECT MONTH(date), YEAR(date) INTO shift_month, shift_year
-    FROM duty_schedule WHERE duty_id = NEW.duty_id;
-
-    SELECT empl_type INTO emp_type
-    FROM employee WHERE employee_id = NEW.employee_id;
-
-    SELECT COUNT(*) INTO current_shifts
-    FROM duty_schedule_team dst
-    JOIN duty_schedule ds ON dst.duty_id = ds.duty_id
-    WHERE dst.employee_id = NEW.employee_id
-      AND MONTH(ds.date) = shift_month
-      AND YEAR(ds.date) = shift_year;
-
-    IF emp_type = 'doctor' AND current_shifts >= 15 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Ο ιατρός έχει ήδη συμπληρώσει το όριο των 15 βαρδιών για αυτόν τον μήνα.';
-    ELSEIF emp_type = 'nurse' AND current_shifts >= 20 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Ο νοσηλευτής έχει ήδη συμπληρώσει το όριο των 20 βαρδιών για αυτόν τον μήνα.';
-    ELSEIF emp_type = 'administrative_staff' AND current_shifts >= 25 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Ο διοικητικός υπάλληλος έχει ήδη συμπληρώσει το όριο των 25 βαρδιών για αυτόν τον μήνα.';
-    END IF;
-END;
-//
-
 
 CREATE TRIGGER prevent_allergic_prescription
 BEFORE INSERT ON medication_treatment
