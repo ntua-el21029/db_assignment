@@ -240,22 +240,6 @@ BEGIN
 END;
 //
 
-CREATE TRIGGER prevent_allergic_prescription
-BEFORE INSERT ON medication_treatment
-FOR EACH ROW
-BEGIN
-    IF EXISTS (
-        SELECT 1 
-        FROM medicine_has_active_substance mhas
-        JOIN patient_has_allergy pha ON mhas.active_substance_id = pha.active_substance_id
-        WHERE mhas.medication_id = NEW.medicine_id 
-          AND pha.patient_id = NEW.patient_id
-    ) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΑΚΥΡΩΣΗ: Ο ασθενής είναι αλλεργικός σε δραστική ουσία αυτού του φαρμάκου';
-    END IF;
-END;
-//
-
 CREATE TRIGGER check_8_hour_rest
 BEFORE INSERT ON duty_schedule_team
 FOR EACH ROW
@@ -264,10 +248,10 @@ BEGIN
     DECLARE n_end DATETIME;
 
     SELECT 
-        ADDTIME(CONVERT(ds.date, DATETIME), st.start_time),
+        ADDTIME(CONVERT(ds.duty_date, DATETIME), st.start_time),
         IF(st.end_time < st.start_time, 
-           ADDTIME(CONVERT(DATE_ADD(ds.date, INTERVAL 1 DAY), DATETIME), st.end_time), 
-           ADDTIME(CONVERT(ds.date, DATETIME), st.end_time)
+           ADDTIME(CONVERT(DATE_ADD(ds.duty_date, INTERVAL 1 DAY), DATETIME), st.end_time), 
+           ADDTIME(CONVERT(ds.duty_date, DATETIME), st.end_time)
         )
     INTO n_start, n_end
     FROM duty_schedule ds
@@ -281,15 +265,30 @@ BEGIN
         JOIN shift_type st ON ds.shift_type_id = st.shift_type_id
         WHERE dst.employee_id = NEW.employee_id
         AND (
-            ADDTIME(CONVERT(ds.date, DATETIME), st.start_time) < DATE_ADD(n_end, INTERVAL 8 HOUR)
+            ADDTIME(CONVERT(ds.duty_date, DATETIME), st.start_time) < DATE_ADD(n_end, INTERVAL 8 HOUR)
             AND 
             IF(st.end_time < st.start_time, 
-               ADDTIME(CONVERT(DATE_ADD(ds.date, INTERVAL 1 DAY), DATETIME), st.end_time), 
-               ADDTIME(CONVERT(ds.date, DATETIME), st.end_time)
+               ADDTIME(CONVERT(DATE_ADD(ds.duty_date, INTERVAL 1 DAY), DATETIME), st.end_time), 
+               ADDTIME(CONVERT(ds.duty_date, DATETIME), st.end_time)
             ) > DATE_SUB(n_start, INTERVAL 8 HOUR)
         )
     ) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΣΦΑΛΜΑ: Πρέπει να μεσολαβούν τουλάχιστον 8 ώρες ανάπαυσης μεταξύ των βαρδιών του υπαλλήλου!';
+    END IF;
+END;
+
+CREATE TRIGGER prevent_allergic_prescription
+BEFORE INSERT ON medication_treatment
+FOR EACH ROW
+BEGIN
+    IF EXISTS (
+        SELECT 1 
+        FROM medicine_has_active_substance mhas
+        JOIN patient_has_allergy pha ON mhas.active_substance_id = pha.active_substance_id
+        WHERE mhas.medication_id = NEW.medicine_id 
+          AND pha.patient_id = NEW.patient_id
+    ) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΑΚΥΡΩΣΗ: Ο ασθενής είναι αλλεργικός σε δραστική ουσία αυτού του φαρμάκου';
     END IF;
 END;
 //
@@ -307,26 +306,26 @@ BEGIN
     DECLARE d_p2 INT DEFAULT 0;
     DECLARE d_p3 INT DEFAULT 0;
 
-    SELECT st.shift_description, ds.date INTO new_shift_desc, new_date
+    SELECT st.shift_type, ds.duty_date INTO new_shift_desc, new_date
     FROM duty_schedule ds
     JOIN shift_type st ON ds.shift_type_id = st.shift_type_id
     WHERE ds.duty_id = NEW.duty_id;
 
     IF new_shift_desc = 'Night' THEN
         SELECT 
-            MAX(CASE WHEN ds.date = DATE_SUB(new_date, INTERVAL 1 DAY) THEN 1 ELSE 0 END),
-            MAX(CASE WHEN ds.date = DATE_SUB(new_date, INTERVAL 2 DAY) THEN 1 ELSE 0 END),
-            MAX(CASE WHEN ds.date = DATE_SUB(new_date, INTERVAL 3 DAY) THEN 1 ELSE 0 END),
-            MAX(CASE WHEN ds.date = DATE_ADD(new_date, INTERVAL 1 DAY) THEN 1 ELSE 0 END),
-            MAX(CASE WHEN ds.date = DATE_ADD(new_date, INTERVAL 2 DAY) THEN 1 ELSE 0 END),
-            MAX(CASE WHEN ds.date = DATE_ADD(new_date, INTERVAL 3 DAY) THEN 1 ELSE 0 END)
+            MAX(CASE WHEN ds.duty_date = DATE_SUB(new_date, INTERVAL 1 DAY) THEN 1 ELSE 0 END),
+            MAX(CASE WHEN ds.duty_date = DATE_SUB(new_date, INTERVAL 2 DAY) THEN 1 ELSE 0 END),
+            MAX(CASE WHEN ds.duty_date = DATE_SUB(new_date, INTERVAL 3 DAY) THEN 1 ELSE 0 END),
+            MAX(CASE WHEN ds.duty_date = DATE_ADD(new_date, INTERVAL 1 DAY) THEN 1 ELSE 0 END),
+            MAX(CASE WHEN ds.duty_date = DATE_ADD(new_date, INTERVAL 2 DAY) THEN 1 ELSE 0 END),
+            MAX(CASE WHEN ds.duty_date = DATE_ADD(new_date, INTERVAL 3 DAY) THEN 1 ELSE 0 END)
         INTO d_m1, d_m2, d_m3, d_p1, d_p2, d_p3
         FROM duty_schedule_team dst
         JOIN duty_schedule ds ON dst.duty_id = ds.duty_id
         JOIN shift_type st ON ds.shift_type_id = st.shift_type_id
         WHERE dst.employee_id = NEW.employee_id 
-          AND st.shift_description = 'Night'
-          AND ds.date BETWEEN DATE_SUB(new_date, INTERVAL 3 DAY) AND DATE_ADD(new_date, INTERVAL 3 DAY);
+          AND st.shift_type = 'Night'
+          AND ds.duty_date BETWEEN DATE_SUB(new_date, INTERVAL 3 DAY) AND DATE_ADD(new_date, INTERVAL 3 DAY);
 
         IF (d_m3 = 1 AND d_m2 = 1 AND d_m1 = 1) OR
            (d_m2 = 1 AND d_m1 = 1 AND d_p1 = 1) OR
