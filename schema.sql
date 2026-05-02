@@ -54,6 +54,7 @@ CREATE TABLE duty_schedule (
     duty_id INT AUTO_INCREMENT PRIMARY KEY,  
     duty_date DATE NOT NULL,
     shift_type_id INT NOT NULL,
+    is_finalized TINYINT DEFAULT 0,
     hospital_department_id INT NOT NULL
 );
 
