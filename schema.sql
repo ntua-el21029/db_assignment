@@ -5,7 +5,7 @@ USE hospital_db;
 CREATE TABLE ken_system (
     ken_id INT(11) AUTO_INCREMENT PRIMARY KEY,
     ken_code VARCHAR(20) NOT NULL,
-    ken_description VARCHAR(255)  NOT NULL,
+    ken_description VARCHAR(255) NOT NULL,
     base_cost DECIMAL(10,2) NOT NULL,
     mdn_days INT(11) NOT NULL 
 );
@@ -25,11 +25,10 @@ CREATE TABLE employee (
     empl_email VARCHAR(50) NOT NULL,
     empl_phone VARCHAR(15) NOT NULL,
     empl_hiring_date DATE DEFAULT (CURRENT_DATE),
-    empl_type VARCHAR(10) NOT NULL, 
+    empl_type VARCHAR(20) NOT NULL,
 
     CONSTRAINT chk_empl_type CHECK (empl_type IN ('doctor', 'nurse', 'administrative_staff'))
 );
-
 
 CREATE TABLE hospital_department (
     department_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -47,8 +46,7 @@ CREATE TABLE shift_type (
     end_time TIME NOT NULL,
     shift_type VARCHAR(20) NOT NULL,
 
-    CONSTRAINT chk_shift_type CHECK (shift_type IN ('Morning', 'Afternoon', 'Night')),
-    CONSTRAINT chk_shift_duration CHECK (HOUR(TIMEDIFF(end_time, start_time)) = 8 OR HOUR(TIMEDIFF(end_time, start_time)) = -16)
+    CONSTRAINT chk_shift_type CHECK (shift_type IN ('Morning', 'Afternoon', 'Night'))
 );
 
 CREATE TABLE duty_schedule (             
@@ -66,11 +64,11 @@ CREATE TABLE duty_schedule_team (
 
 CREATE TABLE department_room (
     room_id INT NOT NULL,
-    room_type VARCHAR(20) NOT NULL,
+    room_type VARCHAR(30) NOT NULL,
     room_status VARCHAR(50) NOT NULL,
     hospital_department_id INT NOT NULL,
 
-    CONSTRAINT chk_room_type CHECK (room_type IN ('Surgery Room', 'Single Bed Patient Room ', 'Multi Bed Patient Room', 'Intensive Care Unit')),
+    CONSTRAINT chk_room_type CHECK (room_type IN ('Surgery Room', 'Single Bed Patient Room', 'Multi Bed Patient Room', 'Intensive Care Unit')),
     CONSTRAINT chk_room_status CHECK (room_status IN ('Available', 'Occupied', 'Under Maintenance')),
 
     PRIMARY KEY (room_id, hospital_department_id)
@@ -93,7 +91,7 @@ CREATE TABLE nurse (
     CONSTRAINT chk_nurse_supervisor CHECK (
         (nurse_grade_id = 1 AND supervisor_nurse_id IS NULL) OR
         (nurse_grade_id <> 1 AND supervisor_nurse_id IS NOT NULL)
-     )
+    )
 );
 
 CREATE TABLE staff_role (
@@ -147,7 +145,6 @@ CREATE TABLE patient (
     CONSTRAINT chk_amka_length CHECK (LENGTH(amka) = 11)
 );
 
-
 CREATE TABLE medication_treatment (
     treatment_id INT AUTO_INCREMENT PRIMARY KEY,
     patient_id INT NOT NULL,
@@ -195,7 +192,7 @@ CREATE TABLE medical_act_categories (
     act_description TEXT NOT NULL               
 );
 
-CREATE TABLE laboratory_exams(
+CREATE TABLE laboratory_exams (
     exam_id INT AUTO_INCREMENT PRIMARY KEY,
     exam_date DATE NOT NULL,
     exam_result TEXT NOT NULL,
@@ -282,31 +279,29 @@ CREATE TABLE doctor (
     license_number VARCHAR(20) NOT NULL UNIQUE,
     grade_id INT NOT NULL,
     specialty_id INT NOT NULL,
-    supervisor_doctor_id INT NULL 
+    supervisor_doctor_id INT NULL,
 
     CONSTRAINT doctors_supervisor_check CHECK (
         (grade_id = 1 AND supervisor_doctor_id IS NOT NULL) OR
         (grade_id = 4 AND supervisor_doctor_id IS NULL) OR
-        ( grade_id IN (2, 3))
-     )
+        (grade_id IN (2, 3))
+    )
 );
-
 
 CREATE OR REPLACE VIEW check_shift_completeness AS
 SELECT 
     ds.duty_id,
     ds.duty_date,
     hd.department_name,
-    st.shift_type_name,
+    st.shift_type,
     COUNT(CASE WHEN d.doctor_id IS NOT NULL THEN 1 END) AS doctor_count,
     COUNT(CASE WHEN n.nurse_id IS NOT NULL THEN 1 END) AS nurse_count,
     COUNT(CASE WHEN adm.staff_id IS NOT NULL THEN 1 END) AS admin_count
-
 FROM duty_schedule ds
 JOIN hospital_department hd ON ds.hospital_department_id = hd.department_id
 JOIN shift_type st ON ds.shift_type_id = st.shift_type_id
 LEFT JOIN duty_schedule_team dst ON ds.duty_id = dst.duty_id
-LEFT JOIN doctor d ON dst.employee_id = d.doctor_id
-LEFT JOIN nurse n ON dst.employee_id = n.nurse_id
+LEFT JOIN doctor d ON dst.employee_id = d.employee_id
+LEFT JOIN nurse n ON dst.employee_id = n.employee_id
 LEFT JOIN administrative_staff adm ON dst.employee_id = adm.employee_id
-GROUP BY ds.duty_id, ds.duty_date, hd.department_name, st.shift_type_name;
+GROUP BY ds.duty_id, ds.duty_date, hd.department_name, st.shift_type;
