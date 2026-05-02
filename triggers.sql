@@ -419,4 +419,20 @@ BEGIN
 END;
 //
 
+CREATE TRIGGER prevent_allergic_prescription
+BEFORE INSERT ON medication_treatment
+FOR EACH ROW
+BEGIN
+    IF EXISTS (
+        SELECT 1 
+        FROM medicine_has_active_substance mhas
+        JOIN patient_has_allergy pha ON mhas.active_substance_id = pha.active_substance_id
+        WHERE mhas.medication_id = NEW.medicine_id 
+          AND pha.patient_id = NEW.patient_id
+    ) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ΑΚΥΡΩΣΗ: Ο ασθενής είναι αλλεργικός σε δραστική ουσία αυτού του φαρμάκου';
+    END IF;
+END;
+//
+
 DELIMITER ;
