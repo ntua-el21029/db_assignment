@@ -305,6 +305,23 @@ CREATE TABLE doctor (
     )
 );
 
+CREATE TABLE hospital_images (
+    image_id INT AUTO_INCREMENT PRIMARY KEY,
+    image_url VARCHAR(255) NOT NULL,
+    detailed_description TEXT, 
+
+    doctor_id INT NULL,
+    department_id INT NULL,
+    medical_act_code VARCHAR(20) NULL, 
+    room_id INT NULL,
+    room_dept_id INT NULL,
+
+    CONSTRAINT fk_img_doctor FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id),
+    CONSTRAINT fk_img_dept FOREIGN KEY (department_id) REFERENCES hospital_department(department_id),
+    CONSTRAINT fk_img_act FOREIGN KEY (medical_act_code) REFERENCES medical_act_categories(act_code),
+    CONSTRAINT fk_img_room FOREIGN KEY (room_id, room_dept_id) REFERENCES department_room(room_id, hospital_department_id)
+);
+
 CREATE OR REPLACE VIEW check_shift_completeness AS
 SELECT 
     ds.duty_id,
