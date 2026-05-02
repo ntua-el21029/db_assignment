@@ -85,8 +85,8 @@ ALTER TABLE doctor
     ADD CONSTRAINT fk_doctor_supervisor FOREIGN KEY (supervisor_doctor_id) REFERENCES doctor(doctor_id),
     ADD CONSTRAINT fk_doctor_grade FOREIGN KEY (grade_id) REFERENCES doctor_grade(grade_id);
 
-ALTER TABLE hospitalization_review
-    ADD CONSTRAINT fk_doc_review_hospitalization FOREIGN KEY (hospitalization_id) REFERENCES hospitalization(hospitalization_id),
-    ADD CONSTRAINT fk_doc_review_doctor FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id);
+ALTER TABLE doctor_review
+    ADD CONSTRAINT fk_doctor_review_doctor FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id),
+    ADD CONSTRAINT fk_doctor_review_patient FOREIGN KEY (hospitalization_id) REFERENCES hospitalization(hospitalization_id);
 
 SET FOREIGN_KEY_CHECKS = 1;
