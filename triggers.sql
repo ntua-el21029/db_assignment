@@ -1,12 +1,22 @@
 USE hospital_db;
 
 DROP TRIGGER IF EXISTS supervisor_nurse_check;
-DROP TRIGGER IF EXISTS check_medical_act_overlap;
+DROP TRIGGER IF EXISTS check_doctor_hierarchy_insert;
+DROP TRIGGER IF EXISTS check_doctor_hierarchy_update;
+DROP TRIGGER IF EXISTS check_dept_director_insert;
+DROP TRIGGER IF EXISTS check_dept_director_update;
 DROP TRIGGER IF EXISTS check_monthly_shift_limits;
-DROP TRIGGER IF EXISTS check_doctor_hierarchy;
-DROP TRIGGER IF EXISTS prevent_allergic_prescription;
+DROP TRIGGER IF EXISTS validate_complete_shift;
 DROP TRIGGER IF EXISTS check_8_hour_rest;
 DROP TRIGGER IF EXISTS check_max_3_night_shifts;
+DROP TRIGGER IF EXISTS calculate_hospitalization_cost;
+DROP TRIGGER IF EXISTS check_medical_act_overlap;
+DROP TRIGGER IF EXISTS check_medical_act_assistant_overlap;
+DROP TRIGGER IF EXISTS prevent_allergic_prescription;
+DROP TRIGGER IF EXISTS trg_hosp_integrity_check;
+DROP TRIGGER IF EXISTS trg_hosp_update_check;
+DROP TRIGGER IF EXISTS trg_doctor_review_bi;
+DROP TRIGGER IF EXISTS trg_doctor_review_bu;
 
 DELIMITER //
 
