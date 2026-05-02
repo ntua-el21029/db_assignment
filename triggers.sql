@@ -435,4 +435,101 @@ BEGIN
 END;
 //
 
+CREATE TRIGGER trg_hosp_integrity_check
+BEFORE INSERT ON hospitalization
+FOR EACH ROW
+BEGIN
+    IF NEW.hosp_review_id IS NOT NULL AND NEW.discharge_date IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Σφάλμα: Αξιολόγηση μόνο με εξιτήριο.';
+    END IF;
+END //
+
+CREATE TRIGGER trg_hosp_update_check
+BEFORE UPDATE ON hospitalization
+FOR EACH ROW
+BEGIN
+    IF NEW.hosp_review_id IS NOT NULL AND NEW.discharge_date IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Σφάλμα: Αξιολόγηση μόνο με εξιτήριο.';
+    END IF;
+END //
+
+CREATE TRIGGER trg_doctor_review_bi
+BEFORE INSERT ON doctor_review
+FOR EACH ROW
+BEGIN
+    DECLARE v_discharge_date DATETIME;
+    DECLARE v_admission_date DATETIME;
+    DECLARE v_patient_id INT;
+    DECLARE v_has_prescription INT;
+
+    -- 1. Ανάκτηση ημερομηνιών και ID ασθενή από τη νοσηλεία (όλα μαζί για ταχύτητα)
+    SELECT discharge_date, admission_date, patient_id 
+    INTO v_discharge_date, v_admission_date, v_patient_id
+    FROM hospitalization 
+    WHERE hospitalization_id = NEW.hospitalization_id;
+
+    -- 2. Έλεγχος αν η νοσηλεία έχει ολοκληρωθεί
+    IF v_discharge_date IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Σφάλμα: Η αξιολόγηση ιατρού επιτρέπεται μόνο μετά το εξιτήριο.';
+    END IF;
+
+    -- 3. Έλεγχος αν ο γιατρός έχει συνταγογραφήσει στον συγκεκριμένο ασθενή 
+    --    ΚΑΤΑ ΤΗ ΔΙΑΡΚΕΙΑ ΑΥΤΗΣ ΤΗΣ ΝΟΣΗΛΕΙΑΣ
+    SELECT COUNT(*) INTO v_has_prescription
+    FROM medication_treatment mt
+    JOIN medication_prescription mp ON mt.med_prescription_id = mp.prescription_id
+    WHERE mt.doctor_id = NEW.doctor_id 
+      AND mt.patient_id = v_patient_id
+      AND mp.start_date >= v_admission_date
+      AND mp.start_date <= v_discharge_date;
+
+    IF v_has_prescription = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Σφάλμα: Ο ασθενής μπορεί να αξιολογήσει μόνο ιατρούς που του έχουν συνταγογραφήσει φάρμακα κατά τη νοσηλεία.';
+    END IF;
+END //
+
+CREATE TRIGGER trg_doctor_review_bu
+BEFORE UPDATE ON doctor_review
+FOR EACH ROW
+BEGIN
+    DECLARE v_discharge_date DATETIME;
+    DECLARE v_admission_date DATETIME;
+    DECLARE v_patient_id INT;
+    DECLARE v_has_prescription INT;
+
+    -- Εκτελούμε τους "βαρείς" ελέγχους ΜΟΝΟ αν αλλάξει η νοσηλεία ή ο ιατρός
+    IF NEW.hospitalization_id <> OLD.hospitalization_id 
+       OR NEW.doctor_id <> OLD.doctor_id THEN
+        
+        -- 1. Ανάκτηση στοιχείων για τη (νέα) νοσηλεία
+        SELECT discharge_date, admission_date, patient_id 
+        INTO v_discharge_date, v_admission_date, v_patient_id
+        FROM hospitalization 
+        WHERE hospitalization_id = NEW.hospitalization_id;
+
+        -- 2. Έλεγχος ολοκλήρωσης νοσηλείας
+        IF v_discharge_date IS NULL THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Σφάλμα: Δεν μπορείτε να συνδέσετε την αξιολόγηση με μια ανοιχτή νοσηλεία.';
+        END IF;
+
+        -- 3. Έλεγχος συνταγογράφησης ΚΑΤΑ ΤΗ ΔΙΑΡΚΕΙΑ ΑΥΤΗΣ ΤΗΣ ΝΟΣΗΛΕΙΑΣ
+        SELECT COUNT(*) INTO v_has_prescription
+        FROM medication_treatment mt
+        JOIN medication_prescription mp ON mt.med_prescription_id = mp.prescription_id
+        WHERE mt.doctor_id = NEW.doctor_id 
+          AND mt.patient_id = v_patient_id
+          AND mp.start_date >= v_admission_date
+          AND mp.start_date <= v_discharge_date;
+
+        IF v_has_prescription = 0 THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Σφάλμα: Ο επιλεγμένος ιατρός δεν έχει συνταγογραφήσει θεραπεία για αυτόν τον ασθενή κατά τη νοσηλεία.';
+        END IF;
+        
+    END IF;
+END //
+
 DELIMITER ;
