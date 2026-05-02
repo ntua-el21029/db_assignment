@@ -25,10 +25,9 @@ CREATE TABLE employee (
     empl_email VARCHAR(50) NOT NULL,
     empl_phone VARCHAR(15) NOT NULL,
     empl_hiring_date DATE DEFAULT (CURRENT_DATE),
-    empl_type VARCHAR(25) NOT NULL, 
+    empl_type VARCHAR(20) NOT NULL,
 
-    CONSTRAINT chk_empl_type CHECK (empl_type IN ('doctor', 'nurse', 'administrative_staff')),
-    CONSTRAINT chk_empl_amka_length CHECK (LENGTH(empl_amka) = 11)
+    CONSTRAINT chk_empl_type CHECK (empl_type IN ('doctor', 'nurse', 'administrative_staff'))
 );
 
 CREATE TABLE hospital_department (
@@ -151,7 +150,10 @@ CREATE TABLE medication_treatment (
     patient_id INT NOT NULL,
     med_prescription_id INT NOT NULL,
     doctor_id INT NOT NULL,
-    medicine_id INT NOT NULL
+    medicine_id INT NOT NULL , 
+
+    CONSTRAINT unique_prescription_combo 
+    UNIQUE (doctor_id, patient_id, medicine_id, med_prescription_id)
 );
 
 CREATE TABLE medication_prescription (
@@ -199,7 +201,8 @@ CREATE TABLE laboratory_exams (
     exam_result TEXT NOT NULL,
     doctor_id INT NOT NULL, 
     hospitalization_id INT NOT NULL,
-    exam_code VARCHAR(20) NOT NULL
+    exam_code VARCHAR(20) NOT NULL ,
+    exam_cost DECIMAL(10,2) NOT NULL DEFAULT 0
 );
 
 CREATE TABLE laboratory_exam_categories (
@@ -294,16 +297,15 @@ SELECT
     ds.duty_id,
     ds.duty_date,
     hd.department_name,
-    st.shift_type AS shift_name, -- Διορθώθηκε από shift_type_name
-    COUNT(DISTINCT d.doctor_id) AS doctor_count,
-    COUNT(DISTINCT n.nurse_id) AS nurse_count,
-    COUNT(DISTINCT adm.staff_id) AS admin_count
+    st.shift_type,
+    COUNT(CASE WHEN d.doctor_id IS NOT NULL THEN 1 END) AS doctor_count,
+    COUNT(CASE WHEN n.nurse_id IS NOT NULL THEN 1 END) AS nurse_count,
+    COUNT(CASE WHEN adm.staff_id IS NOT NULL THEN 1 END) AS admin_count
 FROM duty_schedule ds
 JOIN hospital_department hd ON ds.hospital_department_id = hd.department_id
 JOIN shift_type st ON ds.shift_type_id = st.shift_type_id
 LEFT JOIN duty_schedule_team dst ON ds.duty_id = dst.duty_id
--- Σύνδεση μέσω employee_id και όχι των PK των πινάκων ρόλων
-LEFT JOIN doctor d ON dst.employee_id = d.employee_id 
+LEFT JOIN doctor d ON dst.employee_id = d.employee_id
 LEFT JOIN nurse n ON dst.employee_id = n.employee_id
 LEFT JOIN administrative_staff adm ON dst.employee_id = adm.employee_id
 GROUP BY ds.duty_id, ds.duty_date, hd.department_name, st.shift_type;
