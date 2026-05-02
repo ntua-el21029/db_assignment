@@ -53,7 +53,7 @@ ALTER TABLE hospitalization
     ADD CONSTRAINT fk_hosp_icd_dis FOREIGN KEY (ICD10_discharge_id) REFERENCES ICD10_codes(icd_id),
 
     ADD CONSTRAINT fk_hosp_ken FOREIGN KEY (ken_id) REFERENCES ken_system(ken_id),
-    ADD CONSTRAINT fk_hosp_review FOREIGN KEY (review_id) REFERENCES review(review_id);
+    ADD CONSTRAINT fk_hosp_review FOREIGN KEY (hosp_review_id) REFERENCES hospitalization_review(review_id);
 
 
 ALTER TABLE laboratory_exams
@@ -84,5 +84,9 @@ ALTER TABLE doctor
     ADD CONSTRAINT fk_doctor_specialty FOREIGN KEY (specialty_id) REFERENCES doctor_specialty(specialty_id),
     ADD CONSTRAINT fk_doctor_supervisor FOREIGN KEY (supervisor_doctor_id) REFERENCES doctor(doctor_id),
     ADD CONSTRAINT fk_doctor_grade FOREIGN KEY (grade_id) REFERENCES doctor_grade(grade_id);
+
+ALTER TABLE hospitalization_review
+    ADD CONSTRAINT fk_doc_review_hospitalization FOREIGN KEY (hospitalization_id) REFERENCES hospitalization(hospitalization_id),
+    ADD CONSTRAINT fk_doc_review_doctor FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id);
 
 SET FOREIGN_KEY_CHECKS = 1;

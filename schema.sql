@@ -38,7 +38,7 @@ CREATE TABLE hospital_department (
     dep_building VARCHAR(50) NOT NULL,
     dep_floor INT NOT NULL,
     dep_total_bed INT NOT NULL DEFAULT 0,
-    department_director INT NOT NULL
+    department_director INT NOT NULL UNIQUE
 );
 
 CREATE TABLE shift_type (
@@ -85,7 +85,7 @@ CREATE TABLE nurse_grade (
 
 CREATE TABLE nurse (
     nurse_id INT AUTO_INCREMENT PRIMARY KEY,
-    employee_id INT NOT NULL,
+    employee_id INT NOT NULL UNIQUE,
     nurse_grade_id INT NOT NULL,
     hospital_department_id INT NOT NULL,
     supervisor_nurse_id INT NULL,
@@ -106,7 +106,7 @@ CREATE TABLE staff_role (
 CREATE TABLE administrative_staff (
     staff_id INT AUTO_INCREMENT PRIMARY KEY,
     staff_office VARCHAR(30) NOT NULL,
-    employee_id INT NOT NULL,
+    employee_id INT NOT NULL UNIQUE,
     department_id INT NOT NULL,
     role_id INT NOT NULL
 );
@@ -178,16 +178,28 @@ CREATE TABLE hospitalization (
     ken_id INT NOT NULL,
     extra_cost DECIMAL(10, 2) DEFAULT 0.00,
     total_cost DECIMAL(10, 2),
-    review_id INT NULL
+    hosp_review_id INT NULL UNIQUE
 );
 
-CREATE TABLE review (
+CREATE TABLE hospitalization_review (
     review_id INT AUTO_INCREMENT PRIMARY KEY,
     medical_care TINYINT NOT NULL CHECK (medical_care BETWEEN 1 AND 5),
     nurse_care TINYINT NOT NULL CHECK (nurse_care BETWEEN 1 AND 5),
     cleanness TINYINT NOT NULL CHECK (cleanness BETWEEN 1 AND 5),
     overall_experience TINYINT NOT NULL CHECK (overall_experience BETWEEN 1 AND 5),
-    food_quality TINYINT NOT NULL CHECK (food_quality BETWEEN 1 AND 5)
+    food_quality TINYINT NOT NULL CHECK (food_quality BETWEEN 1 AND 5),
+    review_date DATETIME DEFAULT (CURRENT_TIMESTAMP)
+);
+
+CREATE TABLE doctor_review (
+    doctor_review_id INT AUTO_INCREMENT PRIMARY KEY,
+    hospitalization_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    medical_care TINYINT NOT NULL,
+    review_date DATETIME DEFAULT (CURRENT_TIMESTAMP),
+    
+    CONSTRAINT chk_medical_care CHECK (medical_care BETWEEN 1 AND 5),
+    CONSTRAINT unique_doctor_review UNIQUE (hospitalization_id, doctor_id)
 );
 
 CREATE TABLE medical_act_categories (
@@ -280,7 +292,7 @@ CREATE TABLE doctor_department (
 
 CREATE TABLE doctor (
     doctor_id INT AUTO_INCREMENT PRIMARY KEY,
-    employee_id INT NOT NULL,
+    employee_id INT NOT NULL UNIQUE,
     license_number VARCHAR(20) NOT NULL UNIQUE,
     grade_id INT NOT NULL,
     specialty_id INT NOT NULL,
