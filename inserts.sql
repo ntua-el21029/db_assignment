@@ -54,3 +54,31 @@ FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 (exam_code, category, exam_description);
+
+
+--- DUMMY DATA ---
+
+-- shift_type
+INSERT IGNORE INTO `shift_type` (`shift_type_id`,`start_time`,`end_time`,`shift_type`) VALUES
+(1,'07:00:00','15:00:00','Morning'),
+(2,'15:00:00','23:00:00','Afternoon'),
+(3,'23:00:00','07:00:00','Night');
+
+-- staff_role
+INSERT IGNORE INTO `staff_role` (`role_id`,`role_description`) VALUES
+(1,'Secretary'),
+(2,'Accountant'),
+(3,'Director');
+
+-- nurse_grade
+INSERT IGNORE INTO `nurse_grade` (`nurse_grade_id`,`grade_description`) VALUES
+(1,'Supervisor Nurse'),
+(2,'Nurse'),
+(3,'Assistant Nurse');
+
+-- doctor_grade
+INSERT IGNORE INTO `doctor_grade` (`grade_id`,`grade_description`) VALUES
+(1,'Attending'),
+(2,'Currator B'),
+(3,'Currrator A'),
+(4,'Chief');
