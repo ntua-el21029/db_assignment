@@ -131,7 +131,7 @@ INSERT IGNORE INTO `doctor` (`doctor_id`,`employee_id`,`grade_id`,`specialty_id`
 (14,14,4,4,NULL, 'LIC014'),
 (15,15,4,5,NULL, 'LIC015');
 
--- hospital_department (Σύνολο 15 τμήματα στα Αγγλικά)
+-- hospital_department 
 INSERT IGNORE INTO `hospital_department` (`department_id`,`department_name`,`dep_description`,`dep_building`,`dep_floor`,`department_director`) VALUES
 (1, 'Cardiology', 'Cardiology Department', 'A', 1, 1),
 (2, 'Surgery', 'Surgery Department', 'B', 2, 2),
