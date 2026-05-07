@@ -148,3 +148,21 @@ INSERT IGNORE INTO `hospital_department` (`department_id`,`department_name`,`dep
 (13, 'Dermatology', 'Dermatology Department', 'A', 3, 13),
 (14, 'Pulmonology', 'Pulmonology Department', 'B', 4, 14),
 (15, 'Gastroenterology', 'Gastroenterology Department', 'C', 5, 15);
+
+-- doctor_department
+INSERT IGNORE INTO `doctor_department` (`doctor_id`,`department_id`) VALUES
+(1,1),
+(2,2),
+(3,3),
+(4,4),
+(5,5),
+(6,6),
+(7,7),
+(8,8),
+(9,9),
+(10,10),
+(11,11),
+(12,12),
+(13,13),
+(14,14),
+(15,15);
