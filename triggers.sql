@@ -307,7 +307,7 @@ BEGIN
 END;
 //
 
-CREATE TRIGGER calculate_hospitalization_cost
+CREATE TRIGGER calculate_hospitalization_cost_insert
 BEFORE INSERT ON hospitalization
 FOR EACH ROW
 BEGIN
@@ -320,8 +320,8 @@ BEGIN
     DECLARE exams_cost DECIMAL(10,2) DEFAULT 0;
     DECLARE acts_cost DECIMAL(10,2) DEFAULT 0;
 
-    -- Όταν ορίζεται discharge_date για πρώτη φορά
-    IF NEW.discharge_date IS NOT NULL AND OLD.discharge_date IS NULL THEN
+    -- Αν η νοσηλεία εισάγεται ήδη ολοκληρωμένη (π.χ. historical data)
+    IF NEW.discharge_date IS NOT NULL THEN
 
         -- 1. Κόστος ΚΕΝ + υπέρβαση ΜΔΝ
         SELECT base_cost, mdn_days INTO base, mdn
@@ -336,24 +336,15 @@ BEGIN
         SET daily_rate = base / mdn;
         SET extra_charge = daily_rate * extra_days;
 
-        -- 2. Κόστος εργαστηριακών εξετάσεων
-        SELECT COALESCE(SUM(exam_cost), 0) INTO exams_cost
-        FROM laboratory_exams
-        WHERE hospitalization_id = NEW.hospitalization_id;
-
-        -- 3. Κόστος ιατρικών πράξεων / επεμβάσεων
-        SELECT COALESCE(SUM(act_cost), 0) INTO acts_cost
-        FROM medical_act
-        WHERE hospitalization_id = NEW.hospitalization_id;
-
-        -- 4. Ενημέρωση πεδίων
+        -- 4. Ενημέρωση πεδίων (στο INSERT συνήθως δεν υπάρχουν ακόμα εξετάσεις/πράξεις, αλλά τα βάζουμε για σιγουριά)
         SET NEW.extra_cost = extra_charge;
-        SET NEW.total_cost = base + extra_charge + exams_cost + acts_cost;
+        SET NEW.total_cost = base + extra_charge;
     END IF;
 END;
 //
 
-CREATE TRIGGER calculate_hospitalization_cost
+-- 2. Trigger για ενημερώσεις (UPDATE) - Εδώ χρησιμοποιούμε το OLD
+CREATE TRIGGER calculate_hospitalization_cost_update
 BEFORE UPDATE ON hospitalization
 FOR EACH ROW
 BEGIN
@@ -366,7 +357,7 @@ BEGIN
     DECLARE exams_cost DECIMAL(10,2) DEFAULT 0;
     DECLARE acts_cost DECIMAL(10,2) DEFAULT 0;
 
-    -- Όταν ορίζεται discharge_date για πρώτη φορά
+    -- Όταν ορίζεται discharge_date για πρώτη φορά κατά το update (Παίρνει εξιτήριο)
     IF NEW.discharge_date IS NOT NULL AND OLD.discharge_date IS NULL THEN
 
         -- 1. Κόστος ΚΕΝ + υπέρβαση ΜΔΝ
@@ -398,7 +389,7 @@ BEGIN
     END IF;
 END;
 //
-
+    
 CREATE TRIGGER check_medical_act_overlap
 BEFORE INSERT ON medical_act
 FOR EACH ROW
