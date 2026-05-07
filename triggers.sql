@@ -537,8 +537,8 @@ BEGIN
     JOIN medication_prescription mp ON mt.med_prescription_id = mp.prescription_id
     WHERE mt.doctor_id = NEW.doctor_id 
       AND mt.patient_id = v_patient_id
-      AND mp.start_date >= v_admission_date
-      AND mp.start_date <= v_discharge_date;
+      AND mp.start_date >= DATE(v_admission_date)
+      AND mp.start_date <= DATE(v_discharge_date);
 
     IF v_has_prescription = 0 THEN
         SIGNAL SQLSTATE '45000'
