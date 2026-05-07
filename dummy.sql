@@ -165,7 +165,6 @@ INSERT IGNORE INTO `hospitalization` (`hospitalization_id`,`patient_id`,`triage_
 (9,9,9,9,9,'2023-09-18 23:05:00','2023-09-25 11:00:00',@icd1,@icd1,@ken1,0.0,0.0,9),
 (10,10,10,10,10,'2023-10-23 00:50:00','2023-11-02 12:30:00',@icd1,@icd1,@ken1,0.0,0.0,10);
 
-UPDATE hospitalization SET discharge_date = discharge_date WHERE total_cost = 0;
 
 INSERT IGNORE INTO `doctor_review` (`doctor_review_id`,`hospitalization_id`,`doctor_id`,`medical_care`) VALUES
 (1,1,1,5), (2,2,2,4), (3,3,3,5), (4,4,4,4), (5,5,5,5),
