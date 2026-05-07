@@ -82,3 +82,16 @@ INSERT IGNORE INTO `doctor_grade` (`grade_id`,`grade_description`) VALUES
 (2,'Currator B'),
 (3,'Currrator A'),
 (4,'Chief');
+
+-- doctor_specialty
+INSERT IGNORE INTO `doctor_specialty` (`specialty_id`,`specialty_name`) VALUES
+(1, 'Cardiology'),
+(2, 'Surgery'),
+(3, 'Internal Medicine'),
+(4, 'Orthopedics'),
+(5, 'Neurology'),
+(6, 'Radiology'),
+(7, 'Anesthesiology'),
+(8, 'Pediatrics'),
+(9, 'Obstetrics'),
+(10, 'Psychiatry');
