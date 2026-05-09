@@ -107,17 +107,15 @@ ORDER BY
 //Q5
 SELECT 
     d.doctor_id                                         AS `Κωδικός Ιατρού`,
-    IFNULL(e.empl_first_name, 'Άγνωστο')                AS `Όνομα`,
-    IFNULL(e.empl_last_name, 'Άγνωστο')                 AS `Επώνυμο`,
-    IFNULL(TIMESTAMPDIFF(YEAR, e.empl_birth_date, CURDATE()), 30) AS `Ηλικία`,
+    e.empl_first_name                                   AS `Όνομα`,
+    e.empl_last_name                                    AS `Επώνυμο`,
+    TIMESTAMPDIFF(YEAR, e.empl_birth_date, CURDATE())   AS `Ηλικία`,
     COUNT(ma.act_id)                                    AS `Σύνολο Επεμβάσεων`
 FROM doctor d
-LEFT JOIN employee e      ON e.employee_id = d.employee_id
-LEFT JOIN medical_act ma  ON ma.main_surgeon_id = d.doctor_id
-
--- Το hack: Αν η ηλικία είναι άδεια (NULL), θεωρούμε ότι είναι 30 χρονών για να περάσει!
-WHERE IFNULL(TIMESTAMPDIFF(YEAR, e.empl_birth_date, CURDATE()), 30) < 35
-
+JOIN employee e      ON e.employee_id = d.employee_id
+JOIN medical_act ma  ON ma.main_surgeon_id = d.doctor_id
+-- Αυστηρό φίλτρο: Κάτω από 35 ετών
+WHERE TIMESTAMPDIFF(YEAR, e.empl_birth_date, CURDATE()) < 35
 GROUP BY 
     d.doctor_id, 
     e.empl_first_name, 
