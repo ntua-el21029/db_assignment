@@ -132,7 +132,7 @@ SET @med1 = (SELECT medication_id FROM medicines LIMIT 1);
 SET @sub1 = (SELECT active_substance_id FROM active_substances LIMIT 1);
 
 -- 8. ΝΟΣΗΛΕΙΕΣ (Μοιρασμένες στα τμήματα 1-10. Το 8 και το 10 θα κοπούν στο Query 2!)
-INSERT IGNORE INTO `hospitalization` (`hospitalization_id`,`patient_id`,`triage_id`,`room_id`,`department_id`,`admission_date`,`discharge_date`,`ICD10_admission_id`,`ICD10_discharge_id`,`ken_id`,`extra_cost`,`total_cost`,`hosp_review_id`) VALUES
+INSERT IGNORE INTO `hospitalization` (`hospitalization_id`,`patient_id`,`triage_id`,`room_id`,`department_id`,`admission_date`,`discharge_date`,`ICD10_admission_id`,`ICD10_discharge`,`ken_id`,`extra_cost`,`total_cost`,`hosp_review_id`) VALUES
 (1,1,1,1,1,'2023-01-01 09:00:00','2023-01-10 10:00:00',@icd1,@icd1,@ken1,0.0,0.0,1),
 (2,2,2,2,2,'2023-02-10 10:30:00','2023-02-15 12:00:00',@icd1,@icd1,@ken1,0.0,0.0,2),
 (3,3,3,3,3,'2023-03-15 11:15:00','2023-03-25 14:00:00',@icd1,@icd1,@ken1,0.0,0.0,3),
