@@ -131,6 +131,33 @@ SET @act1 = (SELECT act_code FROM medical_act_categories LIMIT 1);
 SET @med1 = (SELECT medication_id FROM medicines LIMIT 1);
 SET @sub1 = (SELECT active_substance_id FROM active_substances LIMIT 1);
 
+
+-- 12. ΕΡΓΑΣΤΗΡΙΑΚΕΣ ΕΞΕΤΑΣΕΙΣ
+INSERT IGNORE INTO `laboratory_exams` (`exam_id`,`exam_date`,`exam_result`,`doctor_id`,`hospitalization_id`,`exam_code`,`exam_cost`) VALUES
+(1,'2023-01-02','Normal',1,1,@lab1,30),
+(2,'2023-02-11','Pathological',2,2,@lab1,30),
+(3,'2023-03-16','Normal',3,3,@lab1,30),
+(4,'2023-04-21','Normal',4,4,@lab1,30),
+(5,'2023-05-26','Borderline',5,5,@lab1,90),
+(6,'2023-06-11','Normal',6,6,@lab1,55),
+(7,'2023-07-06','Pathological',7,7,@lab1,28),
+(8,'2023-08-13','Normal',8,8,@lab1,33),
+(9,'2023-09-19','Borderline',9,9,@lab1,89),
+(10,'2023-10-24','Normal',10,10,@lab1,41);
+
+-- 13. ΙΑΤΡΙΚΕΣ ΠΡΑΞΕΙΣ
+INSERT IGNORE INTO `medical_act` (`act_id`,`act_start`,`act_end`,`act_cost`,`main_surgeon_id`,`hospitalization_id`,`department_room_id`,`medical_act_code`,`department_id`) VALUES
+(1,'2023-01-03 10:00:00','2023-01-03 12:00:00',1000.00,1,1,1,@act1,1),
+(2,'2023-02-12 11:00:00','2023-02-12 13:00:00',1500.00,2,2,2,@act1,2),
+(3,'2023-03-17 09:00:00','2023-03-17 11:30:00',800.00,3,3,3,@act1,3),
+(4,'2023-04-22 14:00:00','2023-04-22 15:00:00',500.00,4,4,4,@act1,4),
+(5,'2023-05-27 10:00:00','2023-05-27 12:45:00',2000.00,5,5,5,@act1,5),
+(6,'2023-06-12 08:30:00','2023-06-12 10:30:00',1200.00,6,6,6,@act1,6),
+(7,'2023-07-07 11:15:00','2023-07-07 13:15:00',1800.00,7,7,7,@act1,7),
+(8,'2023-08-14 09:45:00','2023-08-14 11:00:00',600.00,8,8,8,@act1,8),
+(9,'2023-09-20 15:30:00','2023-09-20 17:00:00',900.00,9,9,9,@act1,9),
+(10,'2023-10-25 13:00:00','2023-10-25 15:30:00',2200.00,10,10,10,@act1,10);
+
 -- 8. ΝΟΣΗΛΕΙΕΣ (Μοιρασμένες στα τμήματα 1-10. Το 8 και το 10 θα κοπούν στο Query 2!)
 INSERT IGNORE INTO hospitalization (
     hospitalization_id, 
@@ -202,31 +229,6 @@ INSERT IGNORE INTO `duty_schedule_team` (`duty_id`,`employee_id`) VALUES
 (9,9), (9,24), (9,34), 
 (10,10), (10,25), (10,35);
 
--- 12. ΕΡΓΑΣΤΗΡΙΑΚΕΣ ΕΞΕΤΑΣΕΙΣ
-INSERT IGNORE INTO `laboratory_exams` (`exam_id`,`exam_date`,`exam_result`,`doctor_id`,`hospitalization_id`,`exam_code`,`exam_cost`) VALUES
-(1,'2023-01-02','Normal',1,1,@lab1,30),
-(2,'2023-02-11','Pathological',2,2,@lab1,30),
-(3,'2023-03-16','Normal',3,3,@lab1,30),
-(4,'2023-04-21','Normal',4,4,@lab1,30),
-(5,'2023-05-26','Borderline',5,5,@lab1,90),
-(6,'2023-06-11','Normal',6,6,@lab1,55),
-(7,'2023-07-06','Pathological',7,7,@lab1,28),
-(8,'2023-08-13','Normal',8,8,@lab1,33),
-(9,'2023-09-19','Borderline',9,9,@lab1,89),
-(10,'2023-10-24','Normal',10,10,@lab1,41);
-
--- 13. ΙΑΤΡΙΚΕΣ ΠΡΑΞΕΙΣ
-INSERT IGNORE INTO `medical_act` (`act_id`,`act_start`,`act_end`,`act_cost`,`main_surgeon_id`,`hospitalization_id`,`department_room_id`,`medical_act_code`,`department_id`) VALUES
-(1,'2023-01-03 10:00:00','2023-01-03 12:00:00',1000.00,1,1,1,@act1,1),
-(2,'2023-02-12 11:00:00','2023-02-12 13:00:00',1500.00,2,2,2,@act1,2),
-(3,'2023-03-17 09:00:00','2023-03-17 11:30:00',800.00,3,3,3,@act1,3),
-(4,'2023-04-22 14:00:00','2023-04-22 15:00:00',500.00,4,4,4,@act1,4),
-(5,'2023-05-27 10:00:00','2023-05-27 12:45:00',2000.00,5,5,5,@act1,5),
-(6,'2023-06-12 08:30:00','2023-06-12 10:30:00',1200.00,6,6,6,@act1,6),
-(7,'2023-07-07 11:15:00','2023-07-07 13:15:00',1800.00,7,7,7,@act1,7),
-(8,'2023-08-14 09:45:00','2023-08-14 11:00:00',600.00,8,8,8,@act1,8),
-(9,'2023-09-20 15:30:00','2023-09-20 17:00:00',900.00,9,9,9,@act1,9),
-(10,'2023-10-25 13:00:00','2023-10-25 15:30:00',2200.00,10,10,10,@act1,10);
 
 -- 14. ΣΥΜΜΕΤΟΧΗ ΥΠΑΛΛΗΛΩΝ ΣΕ ΙΑΤΡΙΚΕΣ ΠΡΑΞΕΙΣ (Αφορά employee_id)
 INSERT IGNORE INTO `medical_act_has_employee` (`act_id`,`employee_id`) VALUES
