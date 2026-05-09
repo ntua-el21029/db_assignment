@@ -19,8 +19,80 @@ TRUNCATE TABLE administrative_staff;
 TRUNCATE TABLE department_room;
 TRUNCATE TABLE patient;
 
+-- DUMMY DATA --
+
+-- shift_type
+INSERT IGNORE INTO `shift_type` (`shift_type_id`,`start_time`,`end_time`,`shift_type`) VALUES
+(1,'07:00:00','15:00:00','Morning'),
+(2,'15:00:00','23:00:00','Afternoon'),
+(3,'23:00:00','07:00:00','Night');
+
+-- staff_role
+INSERT IGNORE INTO `staff_role` (`role_id`,`role_description`) VALUES
+(1,'Secretary'),
+(2,'Accountant'),
+(3,'Director');
+
+-- nurse_grade
+INSERT IGNORE INTO `nurse_grade` (`nurse_grade_id`,`grade_description`) VALUES
+(1,'Supervisor Nurse'),
+(2,'Nurse'),
+(3,'Assistant Nurse');
+
+-- doctor_grade
+INSERT IGNORE INTO `doctor_grade` (`grade_id`,`grade_description`) VALUES
+(1,'Attending'),
+(2,'Currator B'),
+(3,'Currrator A'),
+(4,'Chief');
+
+-- doctor_specialty
+INSERT IGNORE INTO `doctor_specialty` (`specialty_id`,`specialty_name`) VALUES
+(1,'Cardiology'),
+(2,'Surgery'),
+(3,'Internal Medicine'),
+(4,'Orthopedics'),
+(5,'Neurology'),
+(6,'Radiology'),
+(7,'Anesthesiology'),
+(8,'Pediatrics'),
+(9,'Obstetrics'),
+(10,'Psychiatry');
 
 
+INSERT IGNORE INTO hospital_department (department_id,department_name,dep_description,dep_building,dep_floor,department_director) VALUES
+(1, 'Cardiology', 'Cardiology Department', 'A', 1, 1),
+(2, 'Surgery', 'Surgery Department', 'B', 2, 2),
+(3, 'ICU', 'Intensive Care Unit', 'C', 3, 3),
+(4, 'Emergency', 'Emergency Department', 'A', 4, 4),
+(5, 'Internal Medicine', 'Internal Medicine Department', 'B', 5, 5),
+(6, 'Orthopedics', 'Orthopedics Department', 'C', 1, 6),
+(7, 'Neurology', 'Neurology Department', 'A', 2, 7),
+(8, 'Radiology', 'Radiology Department', 'B', 3, 8),
+(9, 'Pediatrics', 'Pediatrics Department', 'C', 4, 9),
+(10, 'Obstetrics', 'Obstetrics Department', 'A', 5, 10),
+(11, 'Urology', 'Urology Department', 'B', 1, 11),
+(12, 'Ophthalmology', 'Ophthalmology Department', 'C', 2, 12),
+(13, 'Dermatology', 'Dermatology Department', 'A', 3, 13),
+(14, 'Pulmonology', 'Pulmonology Department', 'B', 4, 14),
+(15, 'Gastroenterology', 'Gastroenterology Department', 'C', 5, 15);
+
+INSERT IGNORE INTO doctor_department (doctor_id,department_id) VALUES
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 4),
+(5, 5),
+(6, 6),
+(7, 7),
+(8, 8),
+(9, 9),
+(10, 10),
+(11, 11),
+(12, 12),
+(13, 13),
+(14, 14),
+(15, 15);
 
 -- 1. ΣΥΜΠΛΗΡΩΣΗ ΥΠΑΛΛΗΛΩΝ (10 Nurses, 10 Admins)
 -- (Οι IDs 1-15 είναι οι Γιατροί που ήδη έβαλες)
@@ -45,6 +117,12 @@ INSERT IGNORE INTO `employee` (`employee_id`,`empl_first_name`,`empl_last_name`,
 (33,'Στέφανος','Αθανασίου','s.athanasiou@hospital.gr','6993955206','2009-09-25','administrative_staff', '88888888880', '1981-01-01'),
 (34,'Ειρήνη','Γεωργίου','e.georgiou@hospital.gr','6931079846','2010-05-19','administrative_staff', '99999999991', '1983-01-01'),
 (35,'Θανάσης','Γεωργίου','t.georgiou@hospital.gr','6931009452','2005-01-22','administrative_staff', '10101010103', '1976-01-01');
+
+
+INSERT IGNORE INTO doctor (doctor_id,employee_id,grade_id,specialty_id,supervisor_doctor_id, license_number) VALUES
+(1,1,4,1,NULL, 'LIC001'), (2,2,4,2,NULL, 'LIC002'), (3,3,4,3,NULL, 'LIC003'), (4,4,4,4,NULL, 'LIC004'), (5,5,4,5,NULL, 'LIC005'),
+(6,6,4,6,NULL, 'LIC006'), (7,7,4,7,NULL, 'LIC007'), (8,8,4,8,NULL, 'LIC008'), (9,9,4,9,NULL, 'LIC009'), (10,10,4,10,NULL, 'LIC010'),
+(11,11,4,1,NULL, 'LIC011'), (12,12,4,2,NULL, 'LIC012'), (13,13,4,3,NULL, 'LIC013'), (14,14,4,4,NULL, 'LIC014'), (15,15,4,5,NULL, 'LIC015');
 
 -- 2. ΝΟΣΗΛΕΥΤΕΣ (Σύνδεση με employees 16-25)
 INSERT IGNORE INTO `nurse` (`nurse_id`,`employee_id`,`nurse_grade_id`,`hospital_department_id`,`supervisor_nurse_id`) VALUES
