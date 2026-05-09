@@ -50,8 +50,7 @@ ALTER TABLE hospitalization
     ADD CONSTRAINT fk_hospitalization_room FOREIGN KEY (room_id, department_id) REFERENCES department_room(room_id, hospital_department_id),
 
     ADD CONSTRAINT fk_hosp_icd_adm FOREIGN KEY (ICD10_admission_id) REFERENCES ICD10_codes(icd_id),
-    ADD CONSTRAINT fk_hosp_icd_dis FOREIGN KEY (ICD10_discharge_id) REFERENCES ICD10_codes(icd_id),
-
+    
     ADD CONSTRAINT fk_hosp_ken FOREIGN KEY (ken_id) REFERENCES ken_system(ken_id),
     ADD CONSTRAINT fk_hosp_review FOREIGN KEY (hosp_review_id) REFERENCES hospitalization_review(review_id);
 

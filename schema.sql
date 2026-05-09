@@ -174,10 +174,11 @@ CREATE TABLE hospitalization (
     admission_date DATETIME NOT NULL,
     discharge_date DATETIME NULL,
     ICD10_admission_id VARCHAR(10) NOT NULL,
-    ICD10_discharge_id VARCHAR(10) NULL,
+    ICD10_discharge TEXT NULL,
     ken_id INT NOT NULL,
-    extra_cost DECIMAL(10, 2) DEFAULT 0.00,
+    extra_days_cost DECIMAL(10, 2) DEFAULT 0.00,
     total_cost DECIMAL(10, 2),
+    total_cost_with_exams_acts DECIMAL(10, 2),
     hosp_review_id INT NULL UNIQUE
 );
 
@@ -215,7 +216,7 @@ CREATE TABLE laboratory_exams (
     doctor_id INT NOT NULL, 
     hospitalization_id INT NOT NULL,
     exam_code VARCHAR(20) NOT NULL,
-    exam_cost DECIMAL(10,2) NOT NULL DEFAULT 0
+    exam_cost DECIMAL(10,2) NOT NULL
 );
 
 CREATE TABLE laboratory_exam_categories (
