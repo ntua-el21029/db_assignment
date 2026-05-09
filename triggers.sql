@@ -307,88 +307,130 @@ BEGIN
 END;
 //
 
+
 CREATE TRIGGER calculate_hospitalization_cost_insert
 BEFORE INSERT ON hospitalization
 FOR EACH ROW
 BEGIN
-    DECLARE base DECIMAL(10,2);
-    DECLARE mdn INT;
+    DECLARE base_cost_val DECIMAL(10,2);
+    DECLARE mdn_val INT;
     DECLARE actual_days INT;
-    DECLARE extra_days INT;
+    DECLARE extra_days_count INT;
     DECLARE daily_rate DECIMAL(10,2);
     DECLARE extra_charge DECIMAL(10,2) DEFAULT 0;
     DECLARE exams_cost DECIMAL(10,2) DEFAULT 0;
     DECLARE acts_cost DECIMAL(10,2) DEFAULT 0;
 
-    -- Αν η νοσηλεία εισάγεται ήδη ολοκληρωμένη (π.χ. historical data)
+    -- Αν η νοσηλεία εισάγεται ήδη ολοκληρωμένη (π.χ. από Dummy Data)
     IF NEW.discharge_date IS NOT NULL THEN
 
-        -- 1. Κόστος ΚΕΝ + υπέρβαση ΜΔΝ
-        SELECT base_cost, mdn_days INTO base, mdn
+        -- 1. Ανάκτηση στοιχείων ΚΕΝ
+        SELECT base_cost, mdn_days INTO base_cost_val, mdn_val
         FROM ken_system WHERE ken_id = NEW.ken_id;
 
+        -- 2. Υπολογισμός ημερών
         SET actual_days = DATEDIFF(NEW.discharge_date, NEW.admission_date);
-        IF actual_days = 0 THEN
-            SET actual_days = 1;
+        IF actual_days <= 0 THEN 
+            SET actual_days = 1; 
         END IF;
 
-        SET extra_days = GREATEST(actual_days - mdn, 0);
-        SET daily_rate = base / mdn;
-        SET extra_charge = daily_rate * extra_days;
-
-        -- 4. Ενημέρωση πεδίων (στο INSERT συνήθως δεν υπάρχουν ακόμα εξετάσεις/πράξεις, αλλά τα βάζουμε για σιγουριά)
-        SET NEW.extra_cost = extra_charge;
-        SET NEW.total_cost = base + extra_charge;
-    END IF;
-END;
-//
-
--- 2. Trigger για ενημερώσεις (UPDATE) - Εδώ χρησιμοποιούμε το OLD
-CREATE TRIGGER calculate_hospitalization_cost_update
-BEFORE UPDATE ON hospitalization
-FOR EACH ROW
-BEGIN
-    DECLARE base DECIMAL(10,2);
-    DECLARE mdn INT;
-    DECLARE actual_days INT;
-    DECLARE extra_days INT;
-    DECLARE daily_rate DECIMAL(10,2);
-    DECLARE extra_charge DECIMAL(10,2) DEFAULT 0;
-    DECLARE exams_cost DECIMAL(10,2) DEFAULT 0;
-    DECLARE acts_cost DECIMAL(10,2) DEFAULT 0;
-
-    -- Όταν ορίζεται discharge_date για πρώτη φορά κατά το update (Παίρνει εξιτήριο)
-    IF NEW.discharge_date IS NOT NULL AND OLD.discharge_date IS NULL THEN
-
-        -- 1. Κόστος ΚΕΝ + υπέρβαση ΜΔΝ
-        SELECT base_cost, mdn_days INTO base, mdn
-        FROM ken_system WHERE ken_id = NEW.ken_id;
-
-        SET actual_days = DATEDIFF(NEW.discharge_date, NEW.admission_date);
-        IF actual_days = 0 THEN
-            SET actual_days = 1;
+        -- 3. Υπολογισμός υπέρβασης ΜΔΝ
+        SET extra_days_count = GREATEST(actual_days - mdn_val, 0);
+        
+        IF mdn_val > 0 THEN
+            SET daily_rate = base_cost_val / mdn_val;
+        ELSE
+            SET daily_rate = 0;
         END IF;
+        
+        SET extra_charge = daily_rate * extra_days_count;
 
-        SET extra_days = GREATEST(actual_days - mdn, 0);
-        SET daily_rate = base / mdn;
-        SET extra_charge = daily_rate * extra_days;
-
-        -- 2. Κόστος εργαστηριακών εξετάσεων
+        -- Σημείωση: Στο INSERT, αν τα δεδομένα μπαίνουν για πρώτη φορά, 
+        -- οι παρακάτω SELECT θα φέρουν 0 γιατί δεν υπάρχουν ακόμα εγγραφές 
+        -- που να συνδέονται με το (νέο) hospitalization_id.
+        
+        -- 4. Κόστος Εξετάσεων
         SELECT COALESCE(SUM(exam_cost), 0) INTO exams_cost
         FROM laboratory_exams
         WHERE hospitalization_id = NEW.hospitalization_id;
 
-        -- 3. Κόστος ιατρικών πράξεων / επεμβάσεων
+        -- 5. Κόστος Πράξεων
         SELECT COALESCE(SUM(act_cost), 0) INTO acts_cost
         FROM medical_act
         WHERE hospitalization_id = NEW.hospitalization_id;
 
-        -- 4. Ενημέρωση πεδίων
-        SET NEW.extra_cost = extra_charge;
-        SET NEW.total_cost = base + extra_charge + exams_cost + acts_cost;
+        -- 6. Ενημέρωση των νέων στηλών
+        SET NEW.extra_days_cost = extra_charge;
+        SET NEW.total_cost = base_cost_val + extra_charge;
+        SET NEW.total_cost_with_exams_acts = base_cost_val + extra_charge + exams_cost + acts_cost;
+        
     END IF;
 END;
 //
+
+CREATE TRIGGER calculate_hospitalization_cost_update
+BEFORE UPDATE ON hospitalization
+FOR EACH ROW
+BEGIN
+    DECLARE base_cost_val DECIMAL(10,2);
+    DECLARE mdn_val INT;
+    DECLARE actual_days INT;
+    DECLARE extra_days_count INT;
+    DECLARE daily_rate DECIMAL(10,2);
+    DECLARE extra_charge DECIMAL(10,2) DEFAULT 0;
+    DECLARE exams_cost DECIMAL(10,2) DEFAULT 0;
+    DECLARE acts_cost DECIMAL(10,2) DEFAULT 0;
+
+    -- Έλεγχος: Ενεργοποίηση μόνο όταν ο ασθενής παίρνει εξιτήριο (από NULL σε NOT NULL)
+    IF NEW.discharge_date IS NOT NULL AND OLD.discharge_date IS NULL THEN
+
+        -- 1. Ανάκτηση στοιχείων ΚΕΝ (Βασικό κόστος και Μέση Διάρκεια Νοσηλείας)
+        SELECT base_cost, mdn_days INTO base_cost_val, mdn_val
+        FROM ken_system WHERE ken_id = NEW.ken_id;
+
+        -- 2. Υπολογισμός πραγματικών ημερών (DATEDIFF)
+        SET actual_days = DATEDIFF(NEW.discharge_date, NEW.admission_date);
+        IF actual_days <= 0 THEN
+            SET actual_days = 1; -- Ελάχιστη χρέωση 1 ημέρα
+        END IF;
+
+        -- 3. Υπολογισμός αναλογικής χρέωσης υπέρβασης ΜΔΝ
+        SET extra_days_count = GREATEST(actual_days - mdn_val, 0);
+        
+        -- Αποφυγή διαίρεσης με το μηδέν (Zero check)
+        IF mdn_val > 0 THEN
+            SET daily_rate = base_cost_val / mdn_val;
+        ELSE
+            SET daily_rate = 0;
+        END IF;
+        
+        SET extra_charge = daily_rate * extra_days_count;
+
+        -- 4. Συλλογή κόστους από Εργαστηριακές Εξετάσεις
+        SELECT COALESCE(SUM(exam_cost), 0) INTO exams_cost
+        FROM laboratory_exams
+        WHERE hospitalization_id = NEW.hospitalization_id;
+
+        -- 5. Συλλογή κόστους από Ιατρικές Πράξεις / Επεμβάσεις
+        SELECT COALESCE(SUM(act_cost), 0) INTO acts_cost
+        FROM medical_act
+        WHERE hospitalization_id = NEW.hospitalization_id;
+
+        -- 6. Ενημέρωση των νέων πεδίων του πίνακα
+        -- α) Το έξτρα κόστος μόνο των ημερών
+        SET NEW.extra_days_cost = extra_charge;
+        
+        -- β) Συνολικό κόστος νοσηλείας (ΚΕΝ + Έξτρα ημέρες)
+        SET NEW.total_cost = base_cost_val + extra_charge;
+        
+        -- γ) Τελικό κόστος με εξετάσεις και πράξεις
+        SET NEW.total_cost_with_exams_acts = base_cost_val + extra_charge + exams_cost + acts_cost;
+        
+    END IF;
+END;
+//
+
+DELIMITER ;
     
 CREATE TRIGGER check_medical_act_overlap
 BEFORE INSERT ON medical_act
