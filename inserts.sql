@@ -96,6 +96,13 @@ INSERT IGNORE INTO `doctor_specialty` (`specialty_id`,`specialty_name`) VALUES
 (9,'Obstetrics'),
 (10,'Psychiatry');
 
+
+INSERT IGNORE INTO doctor (doctor_id,employee_id,grade_id,specialty_id,supervisor_doctor_id, license_number) VALUES
+(1,1,4,1,NULL, 'LIC001'), (2,2,4,2,NULL, 'LIC002'), (3,3,4,3,NULL, 'LIC003'), (4,4,4,4,NULL, 'LIC004'), (5,5,4,5,NULL, 'LIC005'),
+(6,6,4,6,NULL, 'LIC006'), (7,7,4,7,NULL, 'LIC007'), (8,8,4,8,NULL, 'LIC008'), (9,9,4,9,NULL, 'LIC009'), (10,10,4,10,NULL, 'LIC010'),
+(11,11,4,1,NULL, 'LIC011'), (12,12,4,2,NULL, 'LIC012'), (13,13,4,3,NULL, 'LIC013'), (14,14,4,4,NULL, 'LIC014'), (15,15,4,5,NULL, 'LIC015');
+
+
 INSERT IGNORE INTO hospital_department (department_id,department_name,dep_description,dep_building,dep_floor,department_director) VALUES
 (1, 'Cardiology', 'Cardiology Department', 'A', 1, 1),
 (2, 'Surgery', 'Surgery Department', 'B', 2, 2),
@@ -112,4 +119,6 @@ INSERT IGNORE INTO hospital_department (department_id,department_name,dep_descri
 (13, 'Dermatology', 'Dermatology Department', 'A', 3, 13),
 (14, 'Pulmonology', 'Pulmonology Department', 'B', 4, 14),
 (15, 'Gastroenterology', 'Gastroenterology Department', 'C', 5, 15);
+
+
 
