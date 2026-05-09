@@ -13,6 +13,13 @@ TRUNCATE TABLE doctor_review;
 TRUNCATE TABLE hospitalization_review;
 TRUNCATE TABLE hospitalization;
 TRUNCATE TABLE triage;
+TRUNCATE TABLE nurse;
+TRUNCATE TABLE employee;
+TRUNCATE TABLE administrative_staff;
+TRUNCATE TABLE department_room;
+TRUNCATE TABLE patient;
+
+
 
 
 -- 1. ΣΥΜΠΛΗΡΩΣΗ ΥΠΑΛΛΗΛΩΝ (10 Nurses, 10 Admins)
