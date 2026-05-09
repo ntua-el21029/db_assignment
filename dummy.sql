@@ -203,17 +203,17 @@ INSERT IGNORE INTO `duty_schedule_team` (`duty_id`,`employee_id`) VALUES
 (10,10), (10,25), (10,35);
 
 -- 12. ΕΡΓΑΣΤΗΡΙΑΚΕΣ ΕΞΕΤΑΣΕΙΣ
-INSERT IGNORE INTO `laboratory_exams` (`exam_id`,`exam_date`,`exam_result`,`doctor_id`,`hospitalization_id`,`exam_code`) VALUES
-(1,'2023-01-02','Normal',1,1,@lab1),
-(2,'2023-02-11','Pathological',2,2,@lab1),
-(3,'2023-03-16','Normal',3,3,@lab1),
-(4,'2023-04-21','Normal',4,4,@lab1),
-(5,'2023-05-26','Borderline',5,5,@lab1),
-(6,'2023-06-11','Normal',6,6,@lab1),
-(7,'2023-07-06','Pathological',7,7,@lab1),
-(8,'2023-08-13','Normal',8,8,@lab1),
-(9,'2023-09-19','Borderline',9,9,@lab1),
-(10,'2023-10-24','Normal',10,10,@lab1);
+INSERT IGNORE INTO `laboratory_exams` (`exam_id`,`exam_date`,`exam_result`,`doctor_id`,`hospitalization_id`,`exam_code`,`exam_cost`) VALUES
+(1,'2023-01-02','Normal',1,1,@lab1,30),
+(2,'2023-02-11','Pathological',2,2,@lab1,30),
+(3,'2023-03-16','Normal',3,3,@lab1,30),
+(4,'2023-04-21','Normal',4,4,@lab1,30),
+(5,'2023-05-26','Borderline',5,5,@lab1,90),
+(6,'2023-06-11','Normal',6,6,@lab1,55),
+(7,'2023-07-06','Pathological',7,7,@lab1,28),
+(8,'2023-08-13','Normal',8,8,@lab1,33),
+(9,'2023-09-19','Borderline',9,9,@lab1,89),
+(10,'2023-10-24','Normal',10,10,@lab1,41);
 
 -- 13. ΙΑΤΡΙΚΕΣ ΠΡΑΞΕΙΣ
 INSERT IGNORE INTO `medical_act` (`act_id`,`act_start`,`act_end`,`act_cost`,`main_surgeon_id`,`hospitalization_id`,`department_room_id`,`medical_act_code`,`department_id`) VALUES
