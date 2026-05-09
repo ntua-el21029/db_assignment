@@ -429,8 +429,6 @@ BEGIN
     END IF;
 END;
 //
-
-DELIMITER ;
     
 CREATE TRIGGER check_medical_act_overlap
 BEFORE INSERT ON medical_act
