@@ -96,3 +96,20 @@ INSERT IGNORE INTO `doctor_specialty` (`specialty_id`,`specialty_name`) VALUES
 (9,'Obstetrics'),
 (10,'Psychiatry');
 
+INSERT IGNORE INTO hospital_department (department_id,department_name,dep_description,dep_building,dep_floor,department_director) VALUES
+(1, 'Cardiology', 'Cardiology Department', 'A', 1, 1),
+(2, 'Surgery', 'Surgery Department', 'B', 2, 2),
+(3, 'ICU', 'Intensive Care Unit', 'C', 3, 3),
+(4, 'Emergency', 'Emergency Department', 'A', 4, 4),
+(5, 'Internal Medicine', 'Internal Medicine Department', 'B', 5, 5),
+(6, 'Orthopedics', 'Orthopedics Department', 'C', 1, 6),
+(7, 'Neurology', 'Neurology Department', 'A', 2, 7),
+(8, 'Radiology', 'Radiology Department', 'B', 3, 8),
+(9, 'Pediatrics', 'Pediatrics Department', 'C', 4, 9),
+(10, 'Obstetrics', 'Obstetrics Department', 'A', 5, 10),
+(11, 'Urology', 'Urology Department', 'B', 1, 11),
+(12, 'Ophthalmology', 'Ophthalmology Department', 'C', 2, 12),
+(13, 'Dermatology', 'Dermatology Department', 'A', 3, 13),
+(14, 'Pulmonology', 'Pulmonology Department', 'B', 4, 14),
+(15, 'Gastroenterology', 'Gastroenterology Department', 'C', 5, 15);
+
