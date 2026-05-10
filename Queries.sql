@@ -374,15 +374,18 @@ ORDER BY opd.ops_count DESC, e.empl_last_name;
 SET @week_start = '2024-01-01';
 SET @week_end   = '2024-01-07';
 
--- Καρτεσιανό προϊόν (τμήματα × ημέρες × βάρδιες) ώστε να εμφανίζονται
--- ΚΑΙ τα slots χωρίς προσωπικό. Στη συνέχεια, οι μετρήσεις γίνονται με 
--- LEFT JOIN στους πραγματικούς πίνακες.
 WITH date_range AS (
+    -- Παράγουμε με 100% ασφαλή τρόπο τις 7 ημέρες της εβδομάδας χωρίς "RECURSIVE"
     SELECT @week_start AS d
-    UNION ALL SELECT DATE_ADD(d, INTERVAL 1 DAY)
-    FROM date_range WHERE d < @week_end
+    UNION ALL SELECT DATE_ADD(@week_start, INTERVAL 1 DAY)
+    UNION ALL SELECT DATE_ADD(@week_start, INTERVAL 2 DAY)
+    UNION ALL SELECT DATE_ADD(@week_start, INTERVAL 3 DAY)
+    UNION ALL SELECT DATE_ADD(@week_start, INTERVAL 4 DAY)
+    UNION ALL SELECT DATE_ADD(@week_start, INTERVAL 5 DAY)
+    UNION ALL SELECT DATE_ADD(@week_start, INTERVAL 6 DAY)
 ),
 slots AS (
+    -- Καρτεσιανό γινόμενο: Τμήματα x Ημέρες x Βάρδιες
     SELECT 
         hd.department_id,
         hd.department_name,
@@ -418,25 +421,36 @@ assignments AS (
     LEFT JOIN staff_role sr ON sr.role_id = a.role_id
 )
 SELECT
-    department_id,
-    department_name,
-    duty_date,
-    shift_type,
-    empl_type,                           -- doctor / nurse / administrative_staff
-    sub_category,                        -- ειδικότητα / νοσηλ. βαθμίδα / διοικ. ρόλος
-    COUNT(employee_id)            AS assigned_count,
+    department_name                              AS `Τμήμα`,
+    duty_date                                    AS `Ημερομηνία`,
+    shift_type                                   AS `Βάρδια`,
+    empl_type                                    AS `Κατηγορία Προσωπικού`,
+    sub_category                                 AS `Ανάλυση (Υποκλάση)`,
+    COUNT(employee_id)                           AS `Άτομα που έχουν ανατεθεί`,
+    
     -- Ολικό απαιτούμενο μίνιμο ανά κατηγορία (από εκφώνηση)
     CASE empl_type
         WHEN 'doctor'               THEN 3
         WHEN 'nurse'                THEN 6
         WHEN 'administrative_staff' THEN 2
         ELSE NULL
-    END AS required_min_total
+    END                                          AS `Απαιτούμενα Άτομα (Ελάχιστο)`
+    
 FROM assignments
-WHERE empl_type IS NOT NULL  -- κρύβουμε κενά slots από αυτή τη breakdown
-GROUP BY department_id, department_name, duty_date, shift_type, empl_type, sub_category
-ORDER BY department_name, duty_date, FIELD(shift_type,'Morning','Afternoon','Night'),
-         empl_type, sub_category;
+WHERE empl_type IS NOT NULL  -- Κρύβουμε τα κενά slots για να είναι καθαρό το report
+GROUP BY 
+    department_id, 
+    department_name, 
+    duty_date, 
+    shift_type, 
+    empl_type, 
+    sub_category
+ORDER BY 
+    `Τμήμα`, 
+    `Ημερομηνία`, 
+    FIELD(shift_type, 'Morning', 'Afternoon', 'Night'),
+    empl_type, 
+    sub_category;
 
 //Q13
 WITH RECURSIVE supervision_chain AS (
