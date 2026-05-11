@@ -17,7 +17,8 @@ DROP TRIGGER IF EXISTS trg_hosp_integrity_check;
 DROP TRIGGER IF EXISTS trg_hosp_update_check;
 DROP TRIGGER IF EXISTS trg_doctor_review_bi;
 DROP TRIGGER IF EXISTS trg_doctor_review_bu;
-
+DROP TRIGGER IF EXISTS calculate_hospitalization_cost_update;
+DROP TRIGGER IF EXISTS calculate_hospitalization_cost_insert;
 DELIMITER //
 
 CREATE TRIGGER supervisor_nurse_check
@@ -429,6 +430,7 @@ BEGIN
     END IF;
 END;
 //
+
     
 CREATE TRIGGER check_medical_act_overlap
 BEFORE INSERT ON medical_act
@@ -576,6 +578,15 @@ BEGIN
         SET MESSAGE_TEXT = 'Σφάλμα: Ο ασθενής μπορεί να αξιολογήσει μόνο ιατρούς που του έχουν συνταγογραφήσει φάρμακα κατά τη νοσηλεία.';
     END IF;
 END //
+
+CREATE TRIGGER force_draft_on_insert
+BEFORE INSERT ON duty_schedule
+FOR EACH ROW
+BEGIN
+    -- Ακόμα και αν ο χρήστης γράψει 1, εμείς το γυρίζουμε σε 0
+    SET NEW.is_finalized = 0;
+END;
+//
 
 CREATE TRIGGER trg_doctor_review_bu
 BEFORE UPDATE ON doctor_review
