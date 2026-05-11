@@ -71,7 +71,7 @@ INSERT IGNORE INTO `doctor_specialty` (`specialty_id`,`specialty_name`) VALUES
 (10,'Psychiatry');
 
 
-INSERT IGNORE INTO `employee` (`employee_id`,`empl_first_name`,`empl_last_name`,`empl_email`,`empl_phone`,`empl_hiring_date`,`empl_type`, `empl_amka`, `empl_birth_date`) VALUES
+INSERT IGNORE INTO `employee` (`employee_id`, `empl_amka`,`empl_birth_date`, `empl_first_name`,`empl_last_name`,`empl_email`,`empl_phone`,`empl_hiring_date`,`empl_type`) VALUES
 (1,'01027000001','1970-02-01','Theodora','Vlachos','emp1@hospital.gr','6942868828','2012-01-15','doctor'),
 (2,'04126200002','1962-12-04','Eirini','Zachariou','emp2@hospital.gr','6921668732','2023-01-15','doctor'),
 (3,'01016600003','1966-01-01','Andreas','Pappas','emp3@hospital.gr','6941227216','2021-01-15','doctor'),
@@ -242,7 +242,6 @@ INSERT IGNORE INTO `employee` (`employee_id`,`empl_first_name`,`empl_last_name`,
 (168,'15048000168','1980-04-15','Nikolas','Diamanti','emp168@hospital.gr','6961484043','2011-01-15','administrative_staff'),
 (169,'24098400169','1984-09-24','Eleni','Georgiou','emp169@hospital.gr','6947077298','2019-01-15','administrative_staff'),
 (170,'09097500170','1975-09-09','Thanasis','Papadopoulos','emp170@hospital.gr','6947962005','2014-01-15','administrative_staff');
-
 
 INSERT IGNORE INTO doctor (doctor_id,employee_id,grade_id,specialty_id,supervisor_doctor_id, license_number) VALUES
 (1,1,4,1,NULL,'LIC001'),
