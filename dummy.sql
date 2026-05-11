@@ -1,23 +1,31 @@
 USE hospital_db;
 SET FOREIGN_KEY_CHECKS=0;
 
+TRUNCATE TABLE patient_has_allergy;
+TRUNCATE TABLE medical_act_has_employee;
 TRUNCATE TABLE duty_schedule_team;
 TRUNCATE TABLE duty_schedule;
-TRUNCATE TABLE laboratory_exams;
-TRUNCATE TABLE medical_act_has_employee;
-TRUNCATE TABLE medical_act;
+TRUNCATE TABLE doctor_review;
 TRUNCATE TABLE medication_treatment;
 TRUNCATE TABLE medication_prescription;
-TRUNCATE TABLE patient_has_allergy;
-TRUNCATE TABLE doctor_review;
-TRUNCATE TABLE hospitalization_review;
 TRUNCATE TABLE hospitalization;
+TRUNCATE TABLE medical_act;
+TRUNCATE TABLE laboratory_exams;
 TRUNCATE TABLE triage;
-TRUNCATE TABLE nurse;
-TRUNCATE TABLE employee;
-TRUNCATE TABLE administrative_staff;
-TRUNCATE TABLE department_room;
+TRUNCATE TABLE hospitalization_review;
 TRUNCATE TABLE patient;
+TRUNCATE TABLE department_room;
+TRUNCATE TABLE administrative_staff;
+TRUNCATE TABLE nurse;
+TRUNCATE TABLE doctor_department;
+TRUNCATE TABLE hospital_department;
+TRUNCATE TABLE doctor;
+TRUNCATE TABLE employee;
+TRUNCATE TABLE doctor_specialty;
+TRUNCATE TABLE doctor_grade;
+TRUNCATE TABLE nurse_grade;
+TRUNCATE TABLE staff_role;
+TRUNCATE TABLE shift_type;
 
 -- DUMMY DATA --
 
@@ -60,6 +68,36 @@ INSERT IGNORE INTO `doctor_specialty` (`specialty_id`,`specialty_name`) VALUES
 (10,'Psychiatry');
 
 
+-- 1. ΣΥΜΠΛΗΡΩΣΗ ΥΠΑΛΛΗΛΩΝ (10 Nurses, 10 Admins)
+-- (Οι IDs 1-15 είναι οι Γιατροί που ήδη έβαλες)
+INSERT IGNORE INTO `employee` (`employee_id`,`empl_first_name`,`empl_last_name`,`empl_email`,`empl_phone`,`empl_hiring_date`,`empl_type`, `empl_amka`, `empl_birth_date`) VALUES
+(16,'Νίκος','Γεωργίου','n.georgiou@hospital.gr','6930005727','2017-03-28','nurse', '11111111112', '1990-01-01'),
+(17,'Λευτέρης','Κωνσταντίνου','l.konstantinou@hospital.gr','6988183110','2017-05-24','nurse', '22222222223', '1992-01-01'),
+(18,'Μιχάλης','Νικολάου','m.nikolaou@hospital.gr','6915614174','2011-12-01','nurse', '33333333334', '1985-01-01'),
+(19,'Θεοδώρα','Ζαχαρίου','t.zachariou@hospital.gr','6915354599','2013-01-10','nurse', '44444444445', '1988-01-01'),
+(20,'Ηλίας','Αθανασίου','i.athanasiou@hospital.gr','6999514287','2007-04-23','nurse', '55555555556', '1978-01-01'),
+(21,'Αλεξάνδρα','Αλεξίου','a.alexiou@hospital.gr','6964543049','2018-12-03','nurse', '66666666667', '1995-01-01'),
+(22,'Τάσος','Ζαχαρίου','t.zachariou2@hospital.gr','6941774346','2008-08-24','nurse', '77777777778', '1980-01-01'),
+(23,'Τάσος','Παπαδάκης','t.papadakis@hospital.gr','6913326769','2009-01-09','nurse', '88888888889', '1982-01-01'),
+(24,'Αλεξάνδρα','Ζαχαρίου','a.zachariou@hospital.gr','6965259205','2022-12-29','nurse', '99999999990', '1998-01-01'),
+(25,'Παναγιώτης','Νικολάου','p.nikolaou@hospital.gr','6924508349','2013-07-31','nurse', '10101010102', '1986-01-01'),
+(26,'Γιώργης','Δημητρίου','g.dimitriou@hospital.gr','6974119726','2007-07-24','administrative_staff', '11111111113', '1975-01-01'),
+(27,'Μιχάλης','Οικονόμου','m.oikonomou@hospital.gr','6919943140','2017-12-10','administrative_staff', '22222222224', '1988-01-01'),
+(28,'Κώστας','Νικολάου','k.nikolaou@hospital.gr','6985543051','2011-10-26','administrative_staff', '33333333335', '1982-01-01'),
+(29,'Δημήτρης','Γεωργίου','d.georgiou@hospital.gr','6984903294','2022-02-23','administrative_staff', '44444444446', '1995-01-01'),
+(30,'Παναγιώτα','Μακρής','p.makri@hospital.gr','6993002706','2010-01-23','administrative_staff', '55555555557', '1980-01-01'),
+(31,'Νίκη','Ζαχαρίου','n.zachariou@hospital.gr','6969421007','2011-09-02','administrative_staff', '66666666668', '1985-01-01'),
+(32,'Κατερίνα','Μακρής','k.makri@hospital.gr','6993352876','2006-05-09','administrative_staff', '77777777779', '1978-01-01'),
+(33,'Στέφανος','Αθανασίου','s.athanasiou@hospital.gr','6993955206','2009-09-25','administrative_staff', '88888888880', '1981-01-01'),
+(34,'Ειρήνη','Γεωργίου','e.georgiou@hospital.gr','6931079846','2010-05-19','administrative_staff', '99999999991', '1983-01-01'),
+(35,'Θανάσης','Γεωργίου','t.georgiou@hospital.gr','6931009452','2005-01-22','administrative_staff', '10101010103', '1976-01-01');
+
+
+INSERT IGNORE INTO doctor (doctor_id,employee_id,grade_id,specialty_id,supervisor_doctor_id, license_number) VALUES
+(1,1,4,1,NULL, 'LIC001'), (2,2,4,2,NULL, 'LIC002'), (3,3,4,3,NULL, 'LIC003'), (4,4,4,4,NULL, 'LIC004'), (5,5,4,5,NULL, 'LIC005'),
+(6,6,4,6,NULL, 'LIC006'), (7,7,4,7,NULL, 'LIC007'), (8,8,4,8,NULL, 'LIC008'), (9,9,4,9,NULL, 'LIC009'), (10,10,4,10,NULL, 'LIC010'),
+(11,11,4,1,NULL, 'LIC011'), (12,12,4,2,NULL, 'LIC012'), (13,13,4,3,NULL, 'LIC013'), (14,14,4,4,NULL, 'LIC014'), (15,15,4,5,NULL, 'LIC015');
+
 INSERT IGNORE INTO hospital_department (department_id,department_name,dep_description,dep_building,dep_floor,department_director) VALUES
 (1, 'Cardiology', 'Cardiology Department', 'A', 1, 1),
 (2, 'Surgery', 'Surgery Department', 'B', 2, 2),
@@ -93,51 +131,6 @@ INSERT IGNORE INTO doctor_department (doctor_id,department_id) VALUES
 (13, 13),
 (14, 14),
 (15, 15);
-
--- 1. ΣΥΜΠΛΗΡΩΣΗ ΥΠΑΛΛΗΛΩΝ (10 Nurses, 10 Admins)
--- (Οι IDs 1-15 είναι οι Γιατροί που ήδη έβαλες)
-INSERT IGNORE INTO `employee` (`employee_id`,`empl_first_name`,`empl_last_name`,`empl_email`,`empl_phone`,`empl_hiring_date`,`empl_type`, `empl_amka`, `empl_birth_date`) VALUES
-(1,'Γιάννης','Παπαδόπουλος','g.papad@hospital.gr','6900000001','2010-01-01','doctor', '01017000001', '1970-01-01'),
-(2,'Νίκος','Κωνσταντίνου','n.konst@hospital.gr','6900000002','2011-02-02','doctor', '02027200002', '1972-02-02'),
-(3,'Ανδρέας','Γεωργίου','a.georg@hospital.gr','6900000003','2012-03-03','doctor', '03037500003', '1975-03-03'),
-(4,'Μαρία','Λέκκα','m.lekka@hospital.gr','6900000004','2013-04-04','doctor', '04047800004', '1978-04-04'),
-(5,'Ελένη','Διαμαντή','e.diam@hospital.gr','6900000005','2014-05-05','doctor', '05058000005', '1980-05-05'),
-(6,'Κώστας','Μακρής','k.makris@hospital.gr','6900000006','2015-06-06','doctor', '06068200006', '1982-06-06'),
-(7,'Στέλιος','Παππάς','s.pappas@hospital.gr','6900000007','2016-07-07','doctor', '07078500007', '1985-07-07'),
-(8,'Κατερίνα','Σάββα','k.savva@hospital.gr','6900000008','2017-08-08','doctor', '08088800008', '1988-08-08'),
-(9,'Δημήτρης','Βλάχος','d.vlachos@hospital.gr','6900000009','2018-09-09','doctor', '09099000009', '1990-09-09'),
-(10,'Σοφία','Ράπτη','s.rapti@hospital.gr','6900000010','2019-10-10','doctor', '10109200010', '1992-10-10'),
-(11,'Βασίλης','Νικολάου','v.nikol@hospital.gr','6900000011','2015-05-05','doctor', '11058000011', '1980-05-05'),
-(12,'Άννα','Παπαδάκη','a.papad@hospital.gr','6900000012','2016-06-06','doctor', '12068200012', '1982-06-06'),
-(13,'Πέτρος','Αλεξίου','p.alex@hospital.gr','6900000013','2017-07-07','doctor', '13078500013', '1985-07-07'),
-(14,'Λουκάς','Στεργίου','l.sterg@hospital.gr','6900000014','2018-08-08','doctor', '14088800014', '1988-08-08'),
-(15,'Χριστίνα','Μάρκου','x.markou@hospital.gr','6900000015','2019-09-09','doctor', '15099000015', '1990-09-09'),
-(16,'Νίκος','Γεωργίου','n.georgiou@hospital.gr','6930005727','2017-03-28','nurse', '11111111112', '1990-01-01'),
-(17,'Λευτέρης','Κωνσταντίνου','l.konstantinou@hospital.gr','6988183110','2017-05-24','nurse', '22222222223', '1992-01-01'),
-(18,'Μιχάλης','Νικολάου','m.nikolaou@hospital.gr','6915614174','2011-12-01','nurse', '33333333334', '1985-01-01'),
-(19,'Θεοδώρα','Ζαχαρίου','t.zachariou@hospital.gr','6915354599','2013-01-10','nurse', '44444444445', '1988-01-01'),
-(20,'Ηλίας','Αθανασίου','i.athanasiou@hospital.gr','6999514287','2007-04-23','nurse', '55555555556', '1978-01-01'),
-(21,'Αλεξάνδρα','Αλεξίου','a.alexiou@hospital.gr','6964543049','2018-12-03','nurse', '66666666667', '1995-01-01'),
-(22,'Τάσος','Ζαχαρίου','t.zachariou2@hospital.gr','6941774346','2008-08-24','nurse', '77777777778', '1980-01-01'),
-(23,'Τάσος','Παπαδάκης','t.papadakis@hospital.gr','6913326769','2009-01-09','nurse', '88888888889', '1982-01-01'),
-(24,'Αλεξάνδρα','Ζαχαρίου','a.zachariou@hospital.gr','6965259205','2022-12-29','nurse', '99999999990', '1998-01-01'),
-(25,'Παναγιώτης','Νικολάου','p.nikolaou@hospital.gr','6924508349','2013-07-31','nurse', '10101010102', '1986-01-01'),
-(26,'Γιώργης','Δημητρίου','g.dimitriou@hospital.gr','6974119726','2007-07-24','administrative_staff', '11111111113', '1975-01-01'),
-(27,'Μιχάλης','Οικονόμου','m.oikonomou@hospital.gr','6919943140','2017-12-10','administrative_staff', '22222222224', '1988-01-01'),
-(28,'Κώστας','Νικολάου','k.nikolaou@hospital.gr','6985543051','2011-10-26','administrative_staff', '33333333335', '1982-01-01'),
-(29,'Δημήτρης','Γεωργίου','d.georgiou@hospital.gr','6984903294','2022-02-23','administrative_staff', '44444444446', '1995-01-01'),
-(30,'Παναγιώτα','Μακρής','p.makri@hospital.gr','6993002706','2010-01-23','administrative_staff', '55555555557', '1980-01-01'),
-(31,'Νίκη','Ζαχαρίου','n.zachariou@hospital.gr','6969421007','2011-09-02','administrative_staff', '66666666668', '1985-01-01'),
-(32,'Κατερίνα','Μακρής','k.makri@hospital.gr','6993352876','2006-05-09','administrative_staff', '77777777779', '1978-01-01'),
-(33,'Στέφανος','Αθανασίου','s.athanasiou@hospital.gr','6993955206','2009-09-25','administrative_staff', '88888888880', '1981-01-01'),
-(34,'Ειρήνη','Γεωργίου','e.georgiou@hospital.gr','6931079846','2010-05-19','administrative_staff', '99999999991', '1983-01-01'),
-(35,'Θανάσης','Γεωργίου','t.georgiou@hospital.gr','6931009452','2005-01-22','administrative_staff', '10101010103', '1976-01-01');
-
-
-INSERT IGNORE INTO doctor (doctor_id,employee_id,grade_id,specialty_id,supervisor_doctor_id, license_number) VALUES
-(1,1,4,1,NULL, 'LIC001'), (2,2,4,2,NULL, 'LIC002'), (3,3,4,3,NULL, 'LIC003'), (4,4,4,4,NULL, 'LIC004'), (5,5,4,5,NULL, 'LIC005'),
-(6,6,4,6,NULL, 'LIC006'), (7,7,4,7,NULL, 'LIC007'), (8,8,4,8,NULL, 'LIC008'), (9,9,4,9,NULL, 'LIC009'), (10,10,4,10,NULL, 'LIC010'),
-(11,11,4,1,NULL, 'LIC011'), (12,12,4,2,NULL, 'LIC012'), (13,13,4,3,NULL, 'LIC013'), (14,14,4,4,NULL, 'LIC014'), (15,15,4,5,NULL, 'LIC015');
 
 -- 2. ΝΟΣΗΛΕΥΤΕΣ (Σύνδεση με employees 16-25)
 INSERT IGNORE INTO `nurse` (`nurse_id`,`employee_id`,`nurse_grade_id`,`hospital_department_id`,`supervisor_nurse_id`) VALUES
