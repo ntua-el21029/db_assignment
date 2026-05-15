@@ -177,8 +177,7 @@ CREATE TABLE hospitalization (
     ICD10_discharge TEXT NULL,
     ken_id INT NOT NULL,
     extra_days_cost DECIMAL(10, 2) DEFAULT 0.00,
-    total_cost DECIMAL(10, 2),
-    total_cost_with_exams_acts DECIMAL(10, 2)
+    total_cost DECIMAL(10, 2)
 );
 
 CREATE TABLE hospitalization_review (
