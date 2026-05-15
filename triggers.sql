@@ -524,23 +524,24 @@ BEGIN
 END;
 //
 
-CREATE TRIGGER trg_hosp_integrity_check
-BEFORE INSERT ON hospitalization
+CREATE TRIGGER trg_check_discharge_before_review
+BEFORE INSERT ON hospitalization_review
 FOR EACH ROW
 BEGIN
-    IF NEW.hosp_review_id IS NOT NULL AND NEW.discharge_date IS NULL THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Σφάλμα: Αξιολόγηση μόνο με εξιτήριο.';
-    END IF;
-END //
+    DECLARE v_discharge_date DATETIME;
 
-CREATE TRIGGER trg_hosp_update_check
-BEFORE UPDATE ON hospitalization
-FOR EACH ROW
-BEGIN
-    IF NEW.hosp_review_id IS NOT NULL AND NEW.discharge_date IS NULL THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Σφάλμα: Αξιολόγηση μόνο με εξιτήριο.';
+    -- Βρίσκουμε την ημερομηνία εξιτηρίου για τη συγκεκριμένη νοσηλεία
+    SELECT discharge_date INTO v_discharge_date
+    FROM hospitalization
+    WHERE hospitalization_id = NEW.hospitalization_id;
+
+    -- Αν η ημερομηνία είναι NULL, σημαίνει ότι ο ασθενής νοσηλεύεται ακόμα
+    IF v_discharge_date IS NULL THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Δεν μπορεί να προστεθεί αξιολόγηση. Η νοσηλεία δεν έχει ολοκληρωθεί (το discharge_date είναι NULL).';
     END IF;
-END //
+END//
+
 
 CREATE TRIGGER trg_doctor_review_bi
 BEFORE INSERT ON doctor_review
