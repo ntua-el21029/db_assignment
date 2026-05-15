@@ -178,12 +178,12 @@ CREATE TABLE hospitalization (
     ken_id INT NOT NULL,
     extra_days_cost DECIMAL(10, 2) DEFAULT 0.00,
     total_cost DECIMAL(10, 2),
-    total_cost_with_exams_acts DECIMAL(10, 2)
+    total_cost_with_exams_acts DECIMAL(10, 2),
+    hosp_review_id INT NULL UNIQUE
 );
 
 CREATE TABLE hospitalization_review (
     review_id INT AUTO_INCREMENT PRIMARY KEY,
-    hospitalization_id INT NULL UNIQUE,
     medical_care TINYINT NOT NULL CHECK (medical_care BETWEEN 1 AND 5),
     nurse_care TINYINT NOT NULL CHECK (nurse_care BETWEEN 1 AND 5),
     cleanness TINYINT NOT NULL CHECK (cleanness BETWEEN 1 AND 5),
@@ -343,8 +343,6 @@ LEFT JOIN administrative_staff adm ON dst.employee_id = adm.employee_id
 GROUP BY ds.duty_id, ds.duty_date, hd.department_name, st.shift_type;
 
 
-
--- FOREIGN KEY CONSTRAINTS
 ALTER TABLE nurse 
     ADD CONSTRAINT fk_nurse_employee FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
     ADD CONSTRAINT fk_nurse_grade FOREIGN KEY (nurse_grade_id) REFERENCES nurse_grade(nurse_grade_id),
@@ -394,10 +392,8 @@ ALTER TABLE hospitalization
 
     ADD CONSTRAINT fk_hosp_icd_adm FOREIGN KEY (ICD10_admission_id) REFERENCES ICD10_codes(icd_id),
     
-    ADD CONSTRAINT fk_hosp_ken FOREIGN KEY (ken_id) REFERENCES ken_system(ken_id);
-
-ALTER TABLE hospitalization_review
-    ADD CONSTRAINT fk_hosp_review_hospitalization FOREIGN KEY (hospitalization_id) REFERENCES hospitalization(hospitalization_id);
+    ADD CONSTRAINT fk_hosp_ken FOREIGN KEY (ken_id) REFERENCES ken_system(ken_id),
+    ADD CONSTRAINT fk_hosp_review FOREIGN KEY (hosp_review_id) REFERENCES hospitalization_review(review_id);
 
 
 ALTER TABLE laboratory_exams
