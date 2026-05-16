@@ -230,11 +230,16 @@ CREATE TABLE medical_act (
     act_end DATETIME NOT NULL,
     act_duration INT AS (TIMESTAMPDIFF(MINUTE, act_start, act_end)) STORED,
     act_cost DECIMAL(10, 2) NOT NULL,
-    main_surgeon_id INT NOT NULL,
+    main_surgeon_id INT NULL,
     hospitalization_id INT NOT NULL,
     department_room_id INT NOT NULL,
     department_id INT NOT NULL,
-    medical_act_code VARCHAR(20) NOT NULL
+    medical_act_code VARCHAR(20) NOT NULL,
+
+    CONSTRAINT chk_surgeon_by_code CHECK (
+        ( (LEFT(medical_act_code, 1) = 'X' OR LEFT(medical_act_code, 1) = 'Χ') AND main_surgeon_id IS NOT NULL ) OR 
+        ( LEFT(medical_act_code, 1) NOT IN ('X', 'Χ') AND main_surgeon_id IS NULL )
+    )
 );
 
 CREATE TABLE medicines (
