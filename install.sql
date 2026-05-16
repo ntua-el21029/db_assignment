@@ -795,7 +795,6 @@ BEGIN
         -- 6. Ενημέρωση των νέων στηλών
         SET NEW.extra_days_cost = extra_charge;
         SET NEW.total_cost = base_cost_val + extra_charge;
-        SET NEW.total_cost_with_exams_acts = base_cost_val + extra_charge + exams_cost + acts_cost;
         
     END IF;
 END;
@@ -855,9 +854,6 @@ BEGIN
         
         -- β) Συνολικό κόστος νοσηλείας (ΚΕΝ + Έξτρα ημέρες)
         SET NEW.total_cost = base_cost_val + extra_charge;
-        
-        -- γ) Τελικό κόστος με εξετάσεις και πράξεις
-        SET NEW.total_cost_with_exams_acts = base_cost_val + extra_charge + exams_cost + acts_cost;
         
     END IF;
 END;
