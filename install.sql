@@ -150,6 +150,7 @@ CREATE TABLE patient (
 CREATE TABLE medication_treatment (
     treatment_id INT AUTO_INCREMENT PRIMARY KEY,
     patient_id INT NOT NULL,
+    hospitalization_id INT NOT NULL,
     med_prescription_id INT NOT NULL,
     doctor_id INT NOT NULL,
     medicine_id INT NOT NULL ,
@@ -385,6 +386,7 @@ ALTER TABLE triage
 ALTER TABLE medication_treatment
     ADD CONSTRAINT fk_med_treatment_prescription FOREIGN KEY (med_prescription_id) REFERENCES medication_prescription(prescription_id),
     ADD CONSTRAINT fk_med_treatment_patient FOREIGN KEY (patient_id) REFERENCES patient(patient_id),
+    ADD CONSTRAINT fk_med_treatment_hospitalization FOREIGN KEY (hospitalization_id) REFERENCES hospitalization(hospitalization_id),
     ADD CONSTRAINT fk_med_treatment_doctor FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id),
     ADD CONSTRAINT fk_med_treatment_medicine FOREIGN KEY (medicine_id) REFERENCES medicines(medication_id);
 
