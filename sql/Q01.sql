@@ -1,39 +1,29 @@
+-- Q01: Συνολικά έσοδα νοσοκομείου ανά τμήμα και έτος, με ανάλυση ανά ΚΕΝ
+-- (βασικό κόστος vs πρόσθετη χρέωση λόγω υπέρβασης ΜΔΝ) και κατανομή
+-- νοσηλειών ανά ασφαλιστικό φορέα.
 SELECT
-    hd.department_name                              AS `Τμήμα`,
-    YEAR(h.admission_date)                          AS `Έτος`,
-    ks.ken_code                                     AS `Κωδικός ΚΕΝ`,
-    ks.ken_description                              AS `Περιγραφή ΚΕΝ`,
-    ks.mdn_days                                     AS `ΜΔΝ`,
-
-    -- Αριθμός νοσηλειών
-    COUNT(h.hospitalization_id)                     AS `Σύνολο Νοσηλειών`,
-
-    -- Βασικό κόστος (από ΚΕΝ × αριθμό νοσηλειών)
-    SUM(ks.base_cost)                               AS `Συνολικό Βασικό Κόστος`,
-
-    -- Πρόσθετη χρέωση λόγω υπέρβασης ΜΔΝ
-    SUM(h.extra_days_cost)                          AS `Συνολική Πρόσθετη Χρέωση`,
-
-    -- Συνολικά έσοδα 
-    SUM(h.total_cost_with_exams_acts)               AS `Συνολικά Έσοδα`,
-
-    -- Κατανομή ανά ασφαλιστικό φορέα (Απόλυτοι αριθμοί)
-    SUM(CASE WHEN p.insurance_provider = 'Public'   THEN 1 ELSE 0 END) AS `Δημόσια Ασφάλιση`,
-    SUM(CASE WHEN p.insurance_provider = 'Private'  THEN 1 ELSE 0 END) AS `Ιδιωτική Ασφάλιση`,
-    SUM(CASE WHEN p.insurance_provider = 'None'     THEN 1 ELSE 0 END) AS `Ανασφάλιστοι`
-
+    hd.department_name                                  AS department,
+    YEAR(h.discharge_date)                              AS year,
+    ks.ken_code                                         AS ken_code,
+    ks.ken_description                                  AS ken_description,
+    p.insurance_provider                                AS insurance_provider,
+    COUNT(h.hospitalization_id)                         AS num_hospitalizations,
+    SUM(ks.base_cost)                                   AS revenue_base_ken,
+    SUM(h.extra_days_cost)                              AS revenue_extra_days,
+    SUM(h.total_cost)                                   AS revenue_total
 FROM hospitalization h
-JOIN hospital_department hd ON hd.department_id    = h.department_id
-JOIN ken_system ks          ON ks.ken_id           = h.ken_id
-JOIN patient p              ON p.patient_id         = h.patient_id
+JOIN hospital_department hd ON h.department_id = hd.department_id
+JOIN ken_system           ks ON h.ken_id        = ks.ken_id
+JOIN patient              p  ON h.patient_id    = p.patient_id
 WHERE h.discharge_date IS NOT NULL
 GROUP BY
     hd.department_name,
-    YEAR(h.admission_date),
+    YEAR(h.discharge_date),
     ks.ken_code,
     ks.ken_description,
-    ks.mdn_days
+    p.insurance_provider
 ORDER BY
     hd.department_name,
-    `Έτος`,
-    `Συνολικά Έσοδα` DESC;    
+    year,
+    ks.ken_code,
+    p.insurance_provider;
