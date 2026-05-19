@@ -57,6 +57,15 @@ ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 (exam_code, category, exam_description);
 
+LOAD DATA INFILE 'C:/users/spiros/downloads/hospital_images.csv' 
+IGNORE INTO TABLE hospital_images 
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ',' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+(image_id, image_url, detailed_description, doctor_id, department_id, @v_medical_act_code, room_id, room_dept_id)
+SET medical_act_code = NULLIF(@v_medical_act_code, '');
 
 
 -- Dummy Data for the rest of the tables 
