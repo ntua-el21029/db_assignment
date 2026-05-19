@@ -40,6 +40,13 @@ CREATE TABLE shift_type (
     CONSTRAINT chk_shift_type CHECK (shift_type IN ('Morning', 'Afternoon', 'Night'))
 );
 
+CREATE TABLE insurance_provider (
+    provider_id INT AUTO_INCREMENT PRIMARY KEY,
+    provider_type VARCHAR(50) NOT NULL UNIQUE,
+
+    CONSTRAINT chk_provider_type CHECK (provider_type IN ('Public', 'Private', 'None'))
+);
+
 CREATE TABLE nurse_grade (
     nurse_grade_id INT AUTO_INCREMENT PRIMARY KEY,
     grade_description VARCHAR(50) NOT NULL,
@@ -106,7 +113,9 @@ CREATE TABLE patient (
 
     CONSTRAINT chk_gender CHECK (gender IN ('Male', 'Female', 'Other')),
     CONSTRAINT chk_insurance_provider CHECK (insurance_provider IN ('Public', 'Private', 'None')),
-    CONSTRAINT chk_amka_length CHECK (LENGTH(amka) = 11)
+    CONSTRAINT chk_amka_length CHECK (LENGTH(amka) = 11),
+
+    CONSTRAINT fk_insurance_provider FOREIGN KEY (insurance_provider) REFERENCES insurance_provider(provider_type)
 );
 
 CREATE TABLE patient_has_allergy (
@@ -206,9 +215,9 @@ CREATE TABLE triage (
     arrival_time DATETIME DEFAULT (CURRENT_TIMESTAMP),
     emergency_level TINYINT NOT NULL,
     symptoms TEXT NOT NULL,
-    outcome VARCHAR(50) NOT NULL,
+    outcome VARCHAR(50) NOT NULL DEFAULT 'Under Examination',
 
-    CHECK (outcome IN ('Discharge', 'Hospitalization')),
+    CHECK (outcome IN ('Discharge', 'Hospitalization', 'Under Examination')),
     CHECK (emergency_level BETWEEN 1 AND 5),
 
     CONSTRAINT fk_triage_patient FOREIGN KEY (patient_id) REFERENCES patient(patient_id),
@@ -506,6 +515,42 @@ BEGIN
         END IF;
     END IF;
 END;
+//
+
+
+CREATE TRIGGER enforce_triage_fifo
+BEFORE INSERT ON hospitalization
+FOR EACH ROW
+BEGIN
+    DECLARE expected_triage INT;
+    DECLARE this_level      INT;
+    DECLARE this_arrival    DATETIME;
+
+    -- Πάρε το επίπεδο και τον χρόνο άφιξης της τρέχουσας διαλογής
+    SELECT emergency_level, arrival_time
+      INTO this_level, this_arrival
+      FROM triage
+     WHERE triage_id = NEW.triage_id;
+
+    -- Βρες ποιος ΘΑ ΕΠΡΕΠΕ να εισαχθεί επόμενος (top of queue)
+    SELECT t.triage_id
+      INTO expected_triage
+      FROM triage t
+      LEFT JOIN hospitalization h ON h.triage_id = t.triage_id
+     WHERE t.outcome = 'Hospitalization'
+       AND h.hospitalization_id IS NULL
+       AND (
+              t.emergency_level < this_level
+           OR (t.emergency_level = this_level AND t.arrival_time < this_arrival)
+           )
+     ORDER BY t.emergency_level ASC, t.arrival_time ASC
+     LIMIT 1;
+
+    IF expected_triage IS NOT NULL THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'FIFO violation: άλλος ασθενής έχει προτεραιότητα';
+    END IF;
+END ;
 //
 
 
