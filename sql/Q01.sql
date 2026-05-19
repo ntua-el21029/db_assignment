@@ -21,9 +21,4 @@ GROUP BY
     YEAR(h.discharge_date),
     ks.ken_code,
     ks.ken_description,
-    p.insurance_provider
-ORDER BY
-    hd.department_name,
-    year,
-    ks.ken_code,
     p.insurance_provider;
